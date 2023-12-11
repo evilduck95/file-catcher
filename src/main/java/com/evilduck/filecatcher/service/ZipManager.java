@@ -24,6 +24,12 @@ public class ZipManager {
         this.tempDirectory = tempDirectory;
     }
 
+    /**
+     * Takes a Zip archive and extracts it, as is to a temporary directory.
+     * @param resource A Zip archive.
+     * @return Path to the temporary directory containing the extracted archive.
+     * @throws IOException when something goes wrong reading the Zip archive or creating a directory.
+     */
     public Path unzipAlbum(final Resource resource) throws IOException {
         final ZipInputStream zipInputStream = new ZipInputStream(resource.getInputStream());
         ZipEntry nextEntry = zipInputStream.getNextEntry();

@@ -39,6 +39,7 @@ public class MediaFileController {
         return handleFileWithService(file, musicService);
     }
 
+    // TODO: THIS IS A TEST, IMPLEMENT THIS FOR OTHER UPLOADS.
     @PostMapping("/zip")
     public ResponseEntity<FileUploadResponse> uploadTest(@RequestParam("file") final MultipartFile file) throws IOException {
         zipManager.unzipAlbum(file.getResource());
