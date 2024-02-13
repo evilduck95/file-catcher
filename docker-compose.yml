@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  media-file-services:
+    container_name: file-catcher
+    environment:
+      - FILMS_DIRECTORY=films/
+      - MUSIC_DIRECTORY=music/
+      - TV_SHOWS_DIRECTORY=tv-shows/
+      - TEMP_DIRECTORY=tmp/
+      - ROOT_DIRECTORY=/media/
+    volumes:
+      - "$HOST_FILMS_DIRECTORY:/media/films"
+      - "$HOST_MUSIC_DIRECTORY:/media/music"
+      - "$HOST_TV_SHOWS_DIRECTORY:/media/tv-shows"
+    build: .
+    ports:
+      - "8200:8200"
+    networks:
+      - file-catcher-network
+    image: 192.168.1.102:5001/media-file-services/file-catcher:latest
+networks:
+  file-catcher-network:
+    name: file-catcher-network
+    driver: bridge
