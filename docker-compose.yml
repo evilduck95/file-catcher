@@ -17,7 +17,6 @@ services:
       - "8200:8200"
     networks:
       - file-catcher-network
-    image: 192.168.1.102:5001/media-file-services/file-catcher:latest
 networks:
   file-catcher-network:
     name: file-catcher-network
