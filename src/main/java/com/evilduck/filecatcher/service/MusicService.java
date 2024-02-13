@@ -1,10 +1,9 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.respository.FileRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class MusicService extends FileService {
@@ -17,11 +16,11 @@ public class MusicService extends FileService {
     }
 
     @Override
-    public Optional<String> save(Resource media, String contentType) {
+    public void save(Resource media, String contentType) {
         if (correctContentType(contentType)) {
-            return musicRepository.save(media);
+            musicRepository.save(media);
         } else {
-            return Optional.of("File is not Audio");
+            throw new IncorrectFileFormatException("File is not Audio");
         }
     }
 }

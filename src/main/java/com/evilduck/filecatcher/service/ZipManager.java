@@ -26,11 +26,12 @@ public class ZipManager {
 
     /**
      * Takes a Zip archive and extracts it, as is to a temporary directory.
+     *
      * @param resource A Zip archive.
      * @return Path to the temporary directory containing the extracted archive.
      * @throws IOException when something goes wrong reading the Zip archive or creating a directory.
      */
-    public Path unzipAlbum(final Resource resource) throws IOException {
+    public File unzipAlbum(final Resource resource) throws IOException {
         final ZipInputStream zipInputStream = new ZipInputStream(resource.getInputStream());
         ZipEntry nextEntry = zipInputStream.getNextEntry();
         final UUID jobId = UUID.randomUUID();
@@ -52,7 +53,7 @@ public class ZipManager {
             }
             nextEntry = zipInputStream.getNextEntry();
         }
-        return workingDirectoryPath;
+        return workingDirectoryPath.toFile();
     }
 
     private static File createNewFile(final File directory, final ZipEntry zipEntry) throws IOException {

@@ -1,5 +1,6 @@
 package com.evilduck.filecatcher.respository;
 
+import com.evilduck.filecatcher.exception.FileSaveException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
@@ -19,7 +20,7 @@ public class FileRepository implements MediaFileRepository {
     }
 
     @Override
-    public Optional<String> save(Resource resource) {
+    public String save(final Resource resource) {
         try {
             final byte[] fileBytes = resource.getContentAsByteArray();
             final String cleansedFilename = Optional.ofNullable(resource.getFilename())
@@ -30,10 +31,24 @@ public class FileRepository implements MediaFileRepository {
             FileUtils.touch(outputFile);
             FileUtils.writeByteArrayToFile(outputFile, fileBytes);
             log.info("Saved file at [{}]", outputFile.getPath());
+            return outputFile.getPath();
         } catch (IOException e) {
-            log.error("Something went wrong with writing the file: [{}], message: [{}]", resource.getFilename(), e.getMessage());
-            return Optional.of(e.getMessage());
+            log.error("Something went wrong writing the file: [{}], message: [{}]", resource.getFilename(), e.getMessage());
+            throw new FileSaveException(e.getMessage());
         }
-        return Optional.empty();
     }
+
+
+    @Override
+    public String save(final File folder, final String name) throws IOException {
+        final File outputDir = new File(directory + name + "/");
+        if(folder.isDirectory()) {
+            if (outputDir.exists()) throw new FileAlreadyExistsException("Directory already exists");
+            FileUtils.moveDirectory(folder, outputDir);
+        } else {
+            throw new RuntimeException("File is not directory");
+        }
+        return outputDir.getPath();
+    }
+
 }

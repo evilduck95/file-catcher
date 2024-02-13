@@ -1,11 +1,10 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.respository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,11 +18,11 @@ public class FilmService extends FileService {
     }
 
     @Override
-    public Optional<String> save(Resource film, final String contentType) {
+    public void save(final Resource film, final String contentType) {
         if(correctContentType(contentType)) {
-            return filmRepository.save(film);
+            filmRepository.save(film);
         } else {
-            return Optional.of("File is not Video");
+            throw new IncorrectFileFormatException("File is not a Video");
         }
     }
 

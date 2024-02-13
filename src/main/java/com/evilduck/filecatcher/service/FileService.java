@@ -1,23 +1,26 @@
 package com.evilduck.filecatcher.service;
 
 import org.springframework.core.io.Resource;
-import org.springframework.lang.Nullable;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.util.Objects;
 
 
 public abstract class FileService {
 
-    private final String expectedContentType;
+    private final String[] expectedContentTypes;
 
-    protected FileService(String expectedContentType) {
-        this.expectedContentType = expectedContentType;
+    protected FileService(String... expectedContentTypes) {
+        this.expectedContentTypes = expectedContentTypes;
     }
 
-    public abstract Optional<String> save(Resource media, @Nullable String contentType);
+    public abstract void save(Resource media, String contentType) throws IOException;
 
-    boolean correctContentType(@Nullable final String contentType) {
-        return Optional.ofNullable(contentType).map(type -> type.startsWith(expectedContentType)).orElse(false);
+    boolean correctContentType(final String contentType) {
+        for (String type : expectedContentTypes) {
+            if (Objects.equals(type, contentType)) return true;
+        }
+        return false;
     }
 
 }
