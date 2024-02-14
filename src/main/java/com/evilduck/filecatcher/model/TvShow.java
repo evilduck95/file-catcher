@@ -10,6 +10,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class TvShow extends Media {
 
+    private int resolution;
     private int season;
     private List<File> episodes;
 
