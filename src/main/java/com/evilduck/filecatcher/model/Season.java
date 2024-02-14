@@ -4,6 +4,6 @@ import lombok.Data;
 
 import java.util.List;
 
-public record TvShow(String name, List<Season> seasons) {
+public record Season(int seasonNumber, List<Episode> episodes) {
 
 }

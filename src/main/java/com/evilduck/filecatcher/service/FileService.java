@@ -17,6 +17,7 @@ public abstract class FileService {
     public abstract void save(Resource media, String contentType) throws IOException;
 
     boolean correctContentType(final String contentType) {
+        if (contentType == null) return false;
         for (String type : expectedContentTypes) {
             if (Objects.equals(type, contentType)) return true;
         }

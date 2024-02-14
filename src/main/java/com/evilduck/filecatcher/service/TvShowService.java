@@ -1,5 +1,6 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.respository.FileRepository;
 import org.springframework.core.io.Resource;
@@ -23,9 +24,14 @@ public class TvShowService extends FileService {
         this.tvShowRepository = tvShowRepository;
     }
 
+    private void parseTvShow(final File tempTvShowFolder) {
+        // TODO: Parse tv show, seasons and episodes.
+    }
+
+
     @Override
     public void save(final Resource media, final String contentType) throws IOException {
-        if (contentType == null || contentType.equals("application/zip")) {
+        if (correctContentType(contentType)) {
             final File tempFolder = zipManager.unzipAlbum(media);
             if (media.getFilename() == null) throw new IncorrectFileFormatException("Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
