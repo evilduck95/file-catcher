@@ -25,7 +25,7 @@ public class TvShowService extends FileService {
 
     @Override
     public void save(final Resource media, final String contentType) throws IOException {
-        if (contentType == null || contentType.equals("application/zip")) {
+        if (correctContentType(contentType)) {
             final File tempFolder = zipManager.unzipAlbum(media);
             if (media.getFilename() == null) throw new IncorrectFileFormatException("Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
