@@ -8,5 +8,6 @@ import lombok.EqualsAndHashCode;
 public class Episode extends Media {
 
     private final int episodeNumber;
+    private Subtitles subtitles;
 
 }
