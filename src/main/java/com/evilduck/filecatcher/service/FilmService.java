@@ -43,16 +43,21 @@ public class FilmService extends FileService {
 
     private int parseResolution(final String filename){
         Matcher resolutionMatch = RESOLUTION_PATTERN.matcher(filename);
-        return resolutionMatch.groupCount() == 1 ? Integer.valueOf(resolutionMatch.group(1)) : 0;
+        if(resolutionMatch.find()) {
+            return resolutionMatch.groupCount() == 1 ? Integer.valueOf(resolutionMatch.group(1)) : 0;
+        }
+        return 0;
     }
 
     private int parseYear(final String filename, int resolution){
         Matcher yearMatch = YEAR_PATTERN.matcher(filename);
-        // Assume the first 4 digit number that is not the resolution would be the year of release
-        for(int groupCounter = 0; groupCounter < yearMatch.groupCount(); groupCounter++){
-            int testValue = Integer.valueOf(yearMatch.group(groupCounter+1));
-            if(testValue != resolution){
-                return testValue;
+        if(yearMatch.find()) {
+            // Assume the first 4 digit number that is not the resolution would be the year of release
+            for (int groupCounter = 0; groupCounter < yearMatch.groupCount(); groupCounter++) {
+                int testValue = Integer.valueOf(yearMatch.group(groupCounter + 1));
+                if (testValue != resolution) {
+                    return testValue;
+                }
             }
         }
         return 0;

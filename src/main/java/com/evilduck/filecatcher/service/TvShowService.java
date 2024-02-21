@@ -40,7 +40,6 @@ public class TvShowService extends FileService {
                 final String episodeNumber = episodeNameMatcher.group(3);
                 final String fileExtension = episodeNameMatcher.group(4);
                 final String outputFileName = String.format("%1$s_S%2$se%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
-
             }
         }
 
