@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @Service
 public class TvShowService extends FileService {
 
-    private static final Pattern FILE_NAME_PATTERN = Pattern.compile("(.*)(s[0-9]{2})(e[0-9]{2}).*\\.(.+)");
+    private static final Pattern FILE_NAME_PATTERN = Pattern.compile("(.*)([s|S][0-9]{2})([e|E][0-9]{2}).*\\.(.+)");
     private final ZipManager zipManager;
     private final FileRepository tvShowRepository;
 
@@ -39,7 +39,7 @@ public class TvShowService extends FileService {
                 final String seasonNumber = episodeNameMatcher.group(2);
                 final String episodeNumber = episodeNameMatcher.group(3);
                 final String fileExtension = episodeNameMatcher.group(4);
-                final String outputFileName = String.format("%1$s_%2$s%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
+                final String outputFileName = String.format("%1$s_S%2$se%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
 
             }
         }
