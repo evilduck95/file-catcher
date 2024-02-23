@@ -15,8 +15,8 @@ import java.util.Optional;
 @Slf4j
 public class FileRepository implements MediaFileRepository {
 
-    private FileDefaults fileDefaults;
-    private final String directory;
+    FileDefaults fileDefaults;
+    final String directory;
 
     public FileRepository(final String directory) {
         this.directory = directory;
@@ -27,7 +27,7 @@ public class FileRepository implements MediaFileRepository {
         try {
             final byte[] fileBytes = resource.getContentAsByteArray();
             final String cleansedFilename = Optional.ofNullable(resource.getFilename())
-                    .map(name -> name.replaceAll("\\s+", "_"))
+                    .map(name -> name.replaceAll(fileDefaults.getCleanseRegex(), String.valueOf(fileDefaults.getDelimiter())))
                     .orElseThrow(() -> new NullPointerException("Resource filename is null"));
             final File outputFile = new File(directory + cleansedFilename);
             if (outputFile.exists()) throw new FileAlreadyExistsException("File already exists");
@@ -53,20 +53,4 @@ public class FileRepository implements MediaFileRepository {
         }
         return outputDir.getPath();
     }
-
-    @Override
-    public String save(final File folder, final Film film){
-        //TODO: Add in file saving for films
-        final String finalFileName = String.format("%s%s(%4d)",
-                film.getName(),
-                fileDefaults.getDelimiter(),
-                film.getReleaseYear().getValue());
-        try{
-            finalFileName.toLowerCase();
-        } catch (IOException e){
-            log.error("Something went wrong writing the film file: [{}], message: [{}]", finalFileName, e.getMessage());
-            throw new FileSaveException(e.getMessage());
-        }
-    }
-
 }

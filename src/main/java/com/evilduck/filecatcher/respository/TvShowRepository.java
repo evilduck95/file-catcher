@@ -4,6 +4,7 @@ import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.model.Episode;
 import com.evilduck.filecatcher.model.Season;
 import com.evilduck.filecatcher.model.TvShow;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -11,15 +12,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class TvShowRepository {
+@Slf4j
+public class TvShowRepository extends FileRepository {
 
-    private final String tvShowDirectory;
-    private final FileDefaults fileDefaults;
-
-    public TvShowRepository(@Value("${directories.tv-shows}") String tvShowDirectory,
-                            FileDefaults fileDefaults) {
-        this.tvShowDirectory = tvShowDirectory;
-        this.fileDefaults = fileDefaults;
+    public TvShowRepository(@Value("${directories.tv-shows}") String directory) {
+        super(directory);
     }
 
     private void saveTvShow(final TvShow tvShow) throws IOException {
@@ -50,7 +47,7 @@ public class TvShowRepository {
                 episode.getEpisodeNumber(),
                 episode.getExtension());
         final String seasonFolderName = String.format("Season%s%02d/", delimiter, seasonNumber);
-        final File episodeOutputFile = new File(tvShowDirectory + seasonFolderName + episodeFileName);
+        final File episodeOutputFile = new File(directory + seasonFolderName + episodeFileName);
         FileUtils.createParentDirectories(episodeOutputFile);
         FileUtils.writeByteArrayToFile(episodeOutputFile, FileUtils.readFileToByteArray(originalFile));
     }
