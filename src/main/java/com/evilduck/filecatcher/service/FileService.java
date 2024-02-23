@@ -1,5 +1,6 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.configuration.FileDefaults;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.util.Objects;
 
 public abstract class FileService {
 
+    protected FileDefaults fileDefaults;
     private final String[] expectedContentTypes;
 
     protected FileService(String... expectedContentTypes) {
@@ -22,6 +24,10 @@ public abstract class FileService {
             if (Objects.equals(type, contentType)) return true;
         }
         return false;
+    }
+
+    String cleanseName(final String filename){
+        return filename.replaceAll(fileDefaults.getCleanseRegex(), String.valueOf(fileDefaults.getDelimiter()));
     }
 
 }

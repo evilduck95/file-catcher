@@ -1,5 +1,6 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.respository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ public class FilmService extends FileService {
 
     private static final Pattern RESOLUTION_PATTERN = Pattern.compile("(240|288|480|576|720|1080|1440|2160|4320)");
     private static final Pattern YEAR_PATTERN = Pattern.compile("([0-9]{4})");
+    private static final Pattern FILM_NAME_PATTERN = Pattern.compile("(.*)([0-9]{4})");
     private final FileRepository filmRepository;
 
     public FilmService(FileRepository filmRepository) {
@@ -28,6 +30,7 @@ public class FilmService extends FileService {
         for(File film : filmFiles){
             if(film.isFile()){
                 String filmFileNameRaw = film.getName();
+                filmFileNameRaw = cleanseName(filmFileNameRaw);
                 final int filmResolution = parseResolution(filmFileNameRaw);
                 final int releaseYear = parseYear(filmFileNameRaw, filmResolution);
                 final String filmName = parseFilmName(filmFileNameRaw);
@@ -65,6 +68,10 @@ public class FilmService extends FileService {
 
     private String parseFilmName(final String filename){
         // TODO: Add in parsing of film name, likely that the film name is going to be before the year or resolution
+        Matcher filmNameMatch = FILM_NAME_PATTERN.matcher(filename);
+        if(filmNameMatch.find()){
+            return filmNameMatch.group(0);
+        }
         return "";
     }
 

@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class FileDefaults {
 
     private char delimiter;
+    private String cleanseRegex;
 
 
 }

@@ -1,6 +1,8 @@
 package com.evilduck.filecatcher.respository;
 
+import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.FileSaveException;
+import com.evilduck.filecatcher.model.Film;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
@@ -13,6 +15,7 @@ import java.util.Optional;
 @Slf4j
 public class FileRepository implements MediaFileRepository {
 
+    private FileDefaults fileDefaults;
     private final String directory;
 
     public FileRepository(final String directory) {
@@ -49,6 +52,21 @@ public class FileRepository implements MediaFileRepository {
             throw new RuntimeException("File is not directory");
         }
         return outputDir.getPath();
+    }
+
+    @Override
+    public String save(final File folder, final Film film){
+        //TODO: Add in file saving for films
+        final String finalFileName = String.format("%s%s(%4d)",
+                film.getName(),
+                fileDefaults.getDelimiter(),
+                film.getReleaseYear().getValue());
+        try{
+            finalFileName.toLowerCase();
+        } catch (IOException e){
+            log.error("Something went wrong writing the film file: [{}], message: [{}]", finalFileName, e.getMessage());
+            throw new FileSaveException(e.getMessage());
+        }
     }
 
 }
