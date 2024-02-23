@@ -1,7 +1,9 @@
 package com.evilduck.filecatcher.service;
 
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
+import com.evilduck.filecatcher.model.TvShow;
 import com.evilduck.filecatcher.respository.FileRepository;
+import com.evilduck.filecatcher.respository.TvShowRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -35,14 +37,15 @@ public class TvShowService extends FileService {
                 final String episodeNameRaw = episodeFile.getName();
                 final Matcher episodeNameMatcher = FILE_NAME_PATTERN.matcher(episodeNameRaw);
                 // TODO: This could be anything or nothing, usually a show name, might need modifying.
-                final String episodeName = episodeNameMatcher.group(1);
-                final String seasonNumber = episodeNameMatcher.group(2);
-                final String episodeNumber = episodeNameMatcher.group(3);
-                final String fileExtension = episodeNameMatcher.group(4);
-                final String outputFileName = String.format("%1$s_S%2$se%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
+                if(episodeNameMatcher.find()){
+                    final String episodeName = episodeNameMatcher.group(1);
+                    final String seasonNumber = episodeNameMatcher.group(2);
+                    final String episodeNumber = episodeNameMatcher.group(3);
+                    final String fileExtension = episodeNameMatcher.group(4);
+                    final String outputFileName = String.format("%1$s_S%2$se%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
+                }
             }
         }
-
     }
 
     private File[] safeListDirectory(final File directory) {

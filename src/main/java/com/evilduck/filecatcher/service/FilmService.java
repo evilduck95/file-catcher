@@ -1,13 +1,14 @@
 package com.evilduck.filecatcher.service;
 
-import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
-import com.evilduck.filecatcher.respository.FileRepository;
+import com.evilduck.filecatcher.model.Film;
+import com.evilduck.filecatcher.respository.FilmRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.Year;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,9 +19,9 @@ public class FilmService extends FileService {
     private static final Pattern RESOLUTION_PATTERN = Pattern.compile("(240|288|480|576|720|1080|1440|2160|4320)");
     private static final Pattern YEAR_PATTERN = Pattern.compile("([0-9]{4})");
     private static final Pattern FILM_NAME_PATTERN = Pattern.compile("(.*)([0-9]{4})");
-    private final FileRepository filmRepository;
+    private final FilmRepository filmRepository;
 
-    public FilmService(FileRepository filmRepository) {
+    public FilmService(FilmRepository filmRepository) {
         super("video");
         this.filmRepository = filmRepository;
     }
@@ -29,11 +30,14 @@ public class FilmService extends FileService {
         File[] filmFiles = safeListDirectory(filmFolder);
         for(File film : filmFiles){
             if(film.isFile()){
-                String filmFileNameRaw = film.getName();
-                filmFileNameRaw = cleanseName(filmFileNameRaw);
-                final int filmResolution = parseResolution(filmFileNameRaw);
-                final int releaseYear = parseYear(filmFileNameRaw, filmResolution);
-                final String filmName = parseFilmName(filmFileNameRaw);
+                String filmFileNameCleansed = cleanseName(film.getName());
+                final Film filmOut = new Film();
+                filmOut.setFile(film);
+                filmOut.setResolution(parseResolution(filmFileNameCleansed));
+                filmOut.setReleaseYear(parseYear(filmFileNameCleansed, filmOut.getResolution()));
+                filmOut.setExtension(parseExtension(filmFileNameCleansed));
+                filmOut.setName(parseFilmName(filmFileNameCleansed));
+                filmRepository.save(filmOut);
             }
         }
     }
@@ -52,18 +56,18 @@ public class FilmService extends FileService {
         return 0;
     }
 
-    private int parseYear(final String filename, int resolution){
+    private Year parseYear(final String filename, int resolution){
         Matcher yearMatch = YEAR_PATTERN.matcher(filename);
         if(yearMatch.find()) {
             // Assume the first 4 digit number that is not the resolution would be the year of release
             for (int groupCounter = 0; groupCounter < yearMatch.groupCount(); groupCounter++) {
                 int testValue = Integer.valueOf(yearMatch.group(groupCounter + 1));
                 if (testValue != resolution) {
-                    return testValue;
+                    return Year.of(testValue);
                 }
             }
         }
-        return 0;
+        return Year.of(Year.MIN_VALUE);
     }
 
     private String parseFilmName(final String filename){

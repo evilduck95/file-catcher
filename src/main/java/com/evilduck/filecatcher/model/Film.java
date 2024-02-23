@@ -1,16 +1,18 @@
 package com.evilduck.filecatcher.model;
 
-import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Optional;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
 public class Film extends Media {
 
     private int resolution;
     private Subtitles subtitles;
 
+    public Film() {
+
+    }
 }
