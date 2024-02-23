@@ -1,9 +1,9 @@
 package com.evilduck.filecatcher.service;
 
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
+import com.evilduck.filecatcher.model.Episode;
 import com.evilduck.filecatcher.model.TvShow;
 import com.evilduck.filecatcher.respository.FileRepository;
-import com.evilduck.filecatcher.respository.TvShowRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 @Service
 public class TvShowService extends FileService {
 
-    private static final Pattern FILE_NAME_PATTERN = Pattern.compile("(.*)([s|S][0-9]{2})([e|E][0-9]{2}).*\\.(.+)");
+    private static final Pattern FILE_NAME_PATTERN = Pattern.compile("(.*)(s[0-9]{2})(e[0-9]{2}).*\\.(.+)", Pattern.CASE_INSENSITIVE);
     private final ZipManager zipManager;
     private final FileRepository tvShowRepository;
 
@@ -28,24 +28,36 @@ public class TvShowService extends FileService {
         this.tvShowRepository = tvShowRepository;
     }
 
-    private void parseTvShow(final File tempTvShowFolder) {
-        // TODO: Parse tv show, seasons and episodes.
-        final File[] seasons = safeListDirectory(tempTvShowFolder);
-        for (File seasonFolder : seasons) {
-            final File[] episodes = safeListDirectory(seasonFolder);
-            for (File episodeFile : episodes) {
+    private TvShow parseTvShow(final File tempTvShowFolder, final String tvShowName) {
+        final File[] seasonFolders = safeListDirectory(tempTvShowFolder);
+        final TvShow tvShow = new TvShow(tvShowName);
+        for (int s = 0; s < seasonFolders.length; s++) {
+            File seasonFolder = seasonFolders[s];
+            final File[] episodeFiles = safeListDirectory(seasonFolder);
+            for (int e = 0; e < episodeFiles.length; e++) {
+                final File episodeFile = episodeFiles[e];
                 final String episodeNameRaw = episodeFile.getName();
-                final Matcher episodeNameMatcher = FILE_NAME_PATTERN.matcher(episodeNameRaw);
-                // TODO: This could be anything or nothing, usually a show name, might need modifying.
-                if(episodeNameMatcher.find()){
-                    final String episodeName = episodeNameMatcher.group(1);
-                    final String seasonNumber = episodeNameMatcher.group(2);
-                    final String episodeNumber = episodeNameMatcher.group(3);
-                    final String fileExtension = episodeNameMatcher.group(4);
-                    final String outputFileName = String.format("%1$s_S%2$se%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
-                }
+                final Episode episode = new Episode(e);
+                episode.setFile(episodeFile);
+                episode.setName(episodeNameRaw);
+                tvShow.addEpisode(s, e, episode);
             }
         }
+        return tvShow;
+    }
+
+    private String cleanEpisodeName(final String episodeNameRaw) {
+        final Matcher episodeNameMatcher = FILE_NAME_PATTERN.matcher(episodeNameRaw);
+        // TODO: This could be anything or nothing, usually a show name, might need modifying.
+        if(episodeNameMatcher.find()){
+            final String episodeName = episodeNameMatcher.group(1);
+            final String seasonNumber = episodeNameMatcher.group(2);
+            final String episodeNumber = episodeNameMatcher.group(3);
+            final String fileExtension = episodeNameMatcher.group(4);
+            final String outputFileName = String.format("%1$s_S%2$se%3$s.%4$s", episodeName, seasonNumber, episodeNumber, fileExtension);
+
+        }
+        return null;
     }
 
     private File[] safeListDirectory(final File directory) {
@@ -58,9 +70,11 @@ public class TvShowService extends FileService {
     public void save(final Resource media, final String contentType) throws IOException {
         if (correctContentType(contentType)) {
             final File tempFolder = zipManager.unzipAlbum(media);
-            if (media.getFilename() == null) throw new IncorrectFileFormatException("Error accessing Filename");
+            final String mediaName = media.getFilename();
+            if (mediaName == null) throw new IncorrectFileFormatException("Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
-                tvShowRepository.save(tempFolder, media.getFilename().replaceFirst("[.].+", ""));
+                final TvShow tvShow = parseTvShow(tempFolder, mediaName);
+                tvShowRepository.save(tempFolder, mediaName.replaceFirst("[.].+", ""));
             } else {
                 throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
             }
@@ -68,6 +82,21 @@ public class TvShowService extends FileService {
             throw new IncorrectFileFormatException("File is not a ZIP archive");
         }
     }
+
+//    @Override
+//    public void save(final Resource media, final String contentType) throws IOException {
+//        if (correctContentType(contentType)) {
+//            final File tempFolder = zipManager.unzipAlbum(media);
+//            if (media.getFilename() == null) throw new IncorrectFileFormatException("Error accessing Filename");
+//            if (isValidTvShowFolder(tempFolder)) {
+//                tvShowRepository.save(tempFolder, media.getFilename().replaceFirst("[.].+", ""));
+//            } else {
+//                throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
+//            }
+//        } else {
+//            throw new IncorrectFileFormatException("File is not a ZIP archive");
+//        }
+//    }
 
     private boolean isValidTvShowFolder(final File folder) {
         final String[] seasons = folder.list();

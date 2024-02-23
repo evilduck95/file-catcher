@@ -1,6 +1,7 @@
 package com.evilduck.filecatcher.configuration;
 
 import com.evilduck.filecatcher.respository.FileRepository;
+import com.evilduck.filecatcher.respository.FilmRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class RepositoriesConfiguration {
 
     @Bean
-    public FileRepository filmRepository(@Value("${directories.films}") final String filmsDirectory) {
-        return new FileRepository(filmsDirectory);
+    public FilmRepository filmRepository(@Value("${directories.films}") final String filmsDirectory) {
+        return new FilmRepository(filmsDirectory);
     }
 
     @Bean
