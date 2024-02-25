@@ -129,21 +129,6 @@ public class TvShowService extends FileService {
         }
     }
 
-//    @Override
-//    public void save(final Resource media, final String contentType) throws IOException {
-//        if (correctContentType(contentType)) {
-//            final File tempFolder = zipManager.unzipAlbum(media);
-//            if (media.getFilename() == null) throw new IncorrectFileFormatException("Error accessing Filename");
-//            if (isValidTvShowFolder(tempFolder)) {
-//                tvShowRepository.save(tempFolder, media.getFilename().replaceFirst("[.].+", ""));
-//            } else {
-//                throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
-//            }
-//        } else {
-//            throw new IncorrectFileFormatException("File is not a ZIP archive");
-//        }
-//    }
-
     private boolean isValidTvShowFolder(final File folder) {
         final String[] seasons = folder.list();
         if (seasons == null) return false;
