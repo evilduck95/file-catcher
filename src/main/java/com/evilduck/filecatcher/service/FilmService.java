@@ -28,11 +28,6 @@ public class FilmService extends FileService {
         this.filmRepository = filmRepository;
     }
 
-    @PostConstruct
-    public void testing() {
-        parseFilm(new File("C:/Users/Keira/Desktop/films"));
-    }
-
     private void parseFilm(final File filmFolder){
         File[] filmFiles = safeListDirectory(filmFolder);
         for(File film : filmFiles){
