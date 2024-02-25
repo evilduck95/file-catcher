@@ -6,21 +6,19 @@ import com.evilduck.filecatcher.model.Season;
 import com.evilduck.filecatcher.model.TvShow;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 public class TvShowRepository extends FileRepository {
 
-    public TvShowRepository(@Value("${directories.tv-shows}") String directory) {
-        super(directory);
+    public TvShowRepository(FileDefaults fileDefaults, String directory) {
+        super(fileDefaults, directory);
     }
 
     private void saveTvShow(final TvShow tvShow) throws IOException {
-        final List<Season> seasons = tvShow.seasons();
+        final Season[] seasons = tvShow.seasons();
         for (Season season : seasons) {
             saveSeason(tvShow.name(), season);
         }
@@ -28,7 +26,7 @@ public class TvShowRepository extends FileRepository {
 
     private void saveSeason(final String tvShowName,
                             final Season season) throws IOException {
-        final List<Episode> episodes = season.episodes();
+        final Episode[] episodes = season.episodes();
         for (Episode episode : episodes) {
             saveEpisode(tvShowName, season.seasonNumber(), episode);
         }

@@ -14,7 +14,8 @@ public abstract class FileService {
     protected FileDefaults fileDefaults;
     private final String[] expectedContentTypes;
 
-    protected FileService(String... expectedContentTypes) {
+    protected FileService(FileDefaults fileDefaults, String... expectedContentTypes) {
+        this.fileDefaults = fileDefaults;
         this.expectedContentTypes = expectedContentTypes;
     }
 

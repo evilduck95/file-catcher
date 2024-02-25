@@ -1,10 +1,10 @@
 package com.evilduck.filecatcher.respository;
 
+import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.FileSaveException;
 import com.evilduck.filecatcher.model.Film;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,8 +13,10 @@ import java.nio.file.FileAlreadyExistsException;
 @Slf4j
 public class FilmRepository extends FileRepository {
 
-    public FilmRepository(@Value("${directories.films}") String directory) {
-        super(directory);
+
+    public FilmRepository(final FileDefaults fileDefaults,
+                          final String directory) {
+        super(fileDefaults, directory);
     }
 
     public String save(final Film film){

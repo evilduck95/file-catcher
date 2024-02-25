@@ -1,5 +1,6 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.respository.FileRepository;
 import org.springframework.core.io.Resource;
@@ -10,8 +11,9 @@ public class MusicService extends FileService {
 
     private final FileRepository musicRepository;
 
-    public MusicService(final FileRepository musicRepository) {
-        super("audio");
+    public MusicService(final FileDefaults fileDefaults,
+                        final FileRepository musicRepository) {
+        super(fileDefaults, "audio");
         this.musicRepository = musicRepository;
     }
 

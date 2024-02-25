@@ -1,22 +1,19 @@
 package com.evilduck.filecatcher.model;
 
-import java.util.ArrayList;
-import java.util.List;
+public record TvShow(String name, Season[] seasons) {
 
-public record TvShow(String name, List<Season> seasons) {
-
-    public TvShow(String name) {
-        this(name, new ArrayList<>());
+    public TvShow(String name, int numberOfSeasons) {
+        this(name, new Season[numberOfSeasons]);
     }
 
-    public void addEpisode(final int seasonNumber,
-                           final int episodeNumber,
-                           final Episode episode) {
-        if (seasons.size() <= seasonNumber) {
-            seasons.add(new Season(seasonNumber, new ArrayList<>()));
-        }
-        final Season season = seasons.get(seasonNumber);
-        season.addEpisode(episodeNumber, episode);
+    public void addSeason(final Season season,
+                          final int seasonNumber) {
+        seasons[seasonNumber] = season;
+    }
+
+
+    public Season getSeason(final int seasonNumber) {
+        return seasonNumber < seasons.length ? seasons[seasonNumber] : null;
     }
 
 }

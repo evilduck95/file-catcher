@@ -2,7 +2,6 @@ package com.evilduck.filecatcher.respository;
 
 import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.FileSaveException;
-import com.evilduck.filecatcher.model.Film;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
@@ -18,7 +17,9 @@ public class FileRepository implements MediaFileRepository {
     FileDefaults fileDefaults;
     final String directory;
 
-    public FileRepository(final String directory) {
+    public FileRepository(final FileDefaults fileDefaults,
+                          final String directory) {
+        this.fileDefaults = fileDefaults;
         this.directory = directory;
     }
 
