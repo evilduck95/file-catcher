@@ -73,7 +73,6 @@ public class FilmService extends FileService {
     }
 
     private String parseFilmName(final String filename){
-        // TODO: Add in parsing of film name, likely that the film name is going to be before the year or resolution
         Matcher filmNameMatch = FILM_NAME_PATTERN.matcher(filename);
         if(filmNameMatch.find()){
             return filmNameMatch.group(1);
