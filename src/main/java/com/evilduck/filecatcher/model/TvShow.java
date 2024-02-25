@@ -1,16 +1,19 @@
 package com.evilduck.filecatcher.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+public record TvShow(String name, Season[] seasons) {
 
-import java.io.File;
-import java.util.List;
+    public TvShow(String name, int numberOfSeasons) {
+        this(name, new Season[numberOfSeasons]);
+    }
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class TvShow extends Media {
+    public void addSeason(final Season season,
+                          final int seasonNumber) {
+        seasons[seasonNumber] = season;
+    }
 
-    private int season;
-    private List<File> episodes;
+
+    public Season getSeason(final int seasonNumber) {
+        return seasonNumber < seasons.length ? seasons[seasonNumber] : null;
+    }
 
 }

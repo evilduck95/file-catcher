@@ -1,6 +1,8 @@
 package com.evilduck.filecatcher.configuration;
 
 import com.evilduck.filecatcher.respository.FileRepository;
+import com.evilduck.filecatcher.respository.FilmRepository;
+import com.evilduck.filecatcher.respository.TvShowRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,19 +10,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RepositoriesConfiguration {
 
+    final FileDefaults fileDefaults;
+
+    public RepositoriesConfiguration(final FileDefaults fileDefaults) {
+        this.fileDefaults = fileDefaults;
+    }
+
     @Bean
-    public FileRepository filmRepository(@Value("${directories.films}") final String filmsDirectory) {
-        return new FileRepository(filmsDirectory);
+    public FilmRepository filmRepository(@Value("${directories.films}") final String filmsDirectory) {
+        return new FilmRepository(fileDefaults, filmsDirectory);
     }
 
     @Bean
     public FileRepository musicRepository(@Value("${directories.music}") final String musicDirectory) {
-        return new FileRepository(musicDirectory);
+        return new FileRepository(fileDefaults, musicDirectory);
     }
 
     @Bean
-    public FileRepository tvShowRepository(@Value("${directories.tv-shows}") final String tvShowsDirectory) {
-        return new FileRepository(tvShowsDirectory);
+    public TvShowRepository tvShowRepository(@Value("${directories.tv-shows}") final String tvShowsDirectory) {
+        return new TvShowRepository(fileDefaults, tvShowsDirectory);
     }
 
 }
