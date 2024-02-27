@@ -4,12 +4,12 @@ import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Film;
 import com.evilduck.filecatcher.respository.FilmRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Year;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,11 +21,25 @@ public class FilmService extends FileService {
     private static final Pattern RESOLUTION_PATTERN = Pattern.compile("(240|288|480|576|720|1080|1440|2160|4320)");
     private static final Pattern YEAR_PATTERN = Pattern.compile("([0-9]{4})");
     private static final Pattern FILM_NAME_PATTERN = Pattern.compile("(.*?)_([0-9]{4})");
+    private final ZipManager zipManager;
     private final FilmRepository filmRepository;
 
-    public FilmService(FilmRepository filmRepository, FileDefaults fileDefaults) {
-        super(fileDefaults, "video");
+    public FilmService(FilmRepository filmRepository,
+                       FileDefaults fileDefaults,
+                       ZipManager zipManager) {
+        super(fileDefaults, "zip");
         this.filmRepository = filmRepository;
+        this.zipManager = zipManager;
+    }
+
+    @Override
+    public void save(final Resource filmsZip, final String contentType) throws IOException {
+        if (correctContentType(contentType)) {
+            final File filmsFolder = zipManager.unzipAlbum(filmsZip);
+            parseFilm(filmsFolder);
+        } else {
+            throw new IncorrectFileFormatException("File is not a Video");
+        }
     }
 
     private void parseFilm(final File filmFolder){
@@ -78,15 +92,6 @@ public class FilmService extends FileService {
             return filmNameMatch.group(1);
         }
         return "";
-    }
-
-    @Override
-    public void save(final Resource film, final String contentType) {
-        if(correctContentType(contentType)) {
-            filmRepository.save(film);
-        } else {
-            throw new IncorrectFileFormatException("File is not a Video");
-        }
     }
 
 }

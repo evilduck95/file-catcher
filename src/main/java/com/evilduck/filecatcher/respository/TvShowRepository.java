@@ -9,18 +9,29 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Path;
 
 @Slf4j
 public class TvShowRepository extends FileRepository {
 
-    public TvShowRepository(FileDefaults fileDefaults, String directory) {
+    public TvShowRepository(FileDefaults fileDefaults,
+                            String directory) {
         super(fileDefaults, directory);
     }
 
-    private void saveTvShow(final TvShow tvShow) throws IOException {
+    public void saveTvShow(final TvShow tvShow) throws IOException {
+        final String morallyCorrectTvShowName = tvShow.name()
+                .toLowerCase()
+                .replaceAll("\\s+", String.valueOf(fileDefaults.getDelimiter()));
+        log.info("Saving TV Show [{}]", morallyCorrectTvShowName);
+        final File tvShowFolder = Path.of(directory, morallyCorrectTvShowName).toFile();
+        if (tvShowFolder.exists())
+            throw new FileAlreadyExistsException("TV Show already exists with name [" + morallyCorrectTvShowName + ']');
         final Season[] seasons = tvShow.seasons();
         for (Season season : seasons) {
-            saveSeason(tvShow.name(), season);
+            if (season == null) continue;
+            saveSeason(morallyCorrectTvShowName, season);
         }
     }
 
@@ -28,6 +39,7 @@ public class TvShowRepository extends FileRepository {
                             final Season season) throws IOException {
         final Episode[] episodes = season.episodes();
         for (Episode episode : episodes) {
+            if (episode == null) continue;
             saveEpisode(tvShowName, season.seasonNumber(), episode);
         }
     }
@@ -44,8 +56,9 @@ public class TvShowRepository extends FileRepository {
                 seasonNumber,
                 episode.getEpisodeNumber(),
                 episode.getExtension());
-        final String seasonFolderName = String.format("Season%s%02d/", delimiter, seasonNumber);
-        final File episodeOutputFile = new File(directory + seasonFolderName + episodeFileName);
+        final String seasonFolderName = String.format("season%s%02d/", delimiter, seasonNumber);
+        final Path episodeOutputPath = Path.of(directory, tvShowName, seasonFolderName, episodeFileName);
+        final File episodeOutputFile = episodeOutputPath.toFile();
         FileUtils.createParentDirectories(episodeOutputFile);
         FileUtils.writeByteArrayToFile(episodeOutputFile, FileUtils.readFileToByteArray(originalFile));
     }

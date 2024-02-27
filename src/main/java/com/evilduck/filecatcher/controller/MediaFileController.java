@@ -24,7 +24,7 @@ public class MediaFileController {
     }
 
     @PostMapping("/film")
-    public ResponseEntity<FileUploadResponse> uploadFilm(@RequestParam("file") final MultipartFile file) {
+    public ResponseEntity<FileUploadResponse> uploadFilm(@RequestParam("file") final MultipartFile file) throws IOException {
         filmService.save(file.getResource(), file.getContentType());
         final FileUploadResponse fileUploadResponse = new FileUploadResponse();
         fileUploadResponse.setMessage("Success");

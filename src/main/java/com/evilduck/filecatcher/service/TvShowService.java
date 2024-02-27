@@ -5,7 +5,7 @@ import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Episode;
 import com.evilduck.filecatcher.model.Season;
 import com.evilduck.filecatcher.model.TvShow;
-import com.evilduck.filecatcher.respository.FileRepository;
+import com.evilduck.filecatcher.respository.TvShowRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,14 @@ import java.util.regex.Pattern;
 @Service
 public class TvShowService extends FileService {
 
-    private static final Pattern FILE_NAME_PATTERN = Pattern.compile("(.*)(s[0-9]{2})(e[0-9]{2}).*\\.(.+)", Pattern.CASE_INSENSITIVE);
     private final ZipManager zipManager;
-    private final FileRepository tvShowRepository;
+
+    private final TvShowRepository tvShowRepository;
 
     protected TvShowService(final FileDefaults fileDefaults,
                             final ZipManager zipManager,
-                            final FileRepository tvShowRepository) {
-        super(fileDefaults, "application/zip");
+                            final TvShowRepository tvShowRepository) {
+        super(fileDefaults, "zip");
         this.zipManager = zipManager;
         this.tvShowRepository = tvShowRepository;
     }
@@ -120,7 +120,9 @@ public class TvShowService extends FileService {
             if (mediaName == null) throw new IncorrectFileFormatException("Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
                 final TvShow tvShow = parseTvShow(tempFolder, mediaName);
-                tvShowRepository.save(tempFolder, mediaName.replaceFirst("[.].+", ""));
+                tvShowRepository.saveTvShow(tvShow);
+                log.info("Saved TV Show [{}]", tvShow.name());
+//                tvShowRepository.save(tempFolder, mediaName.replaceFirst("[.].+", ""));
             } else {
                 throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
             }

@@ -4,7 +4,6 @@ import com.evilduck.filecatcher.configuration.FileDefaults;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +23,7 @@ public abstract class FileService {
     boolean correctContentType(final String contentType) {
         if (contentType == null) return false;
         for (String type : expectedContentTypes) {
-            if (Objects.equals(type, contentType)) return true;
+            if (contentType.contains(type)) return true;
         }
         return false;
     }

@@ -21,9 +21,8 @@ public class FilmRepository extends FileRepository {
 
     public String save(final Film film){
         //TODO: Add in file saving for films
-        final String finalFileName = String.format("%s%s(%4d).%s",
+        final String finalFileName = String.format("%s(%4d).%s",
                 film.getName(),
-                fileDefaults.getDelimiter(),
                 film.getReleaseYear().getValue(),
                 film.getExtension());
         try{
