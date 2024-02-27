@@ -19,21 +19,19 @@ public class FilmRepository extends FileRepository {
         super(fileDefaults, directory);
     }
 
-    public String save(final Film film){
-        //TODO: Add in file saving for films
-        final String finalFileName = String.format("%s%s(%4d).%s",
+    public void save(final Film film) {
+        final String finalFileName = String.format("%s(%4d).%s",
                 film.getName(),
-                fileDefaults.getDelimiter(),
                 film.getReleaseYear().getValue(),
                 film.getExtension());
-        try{
+        try {
             final File outputFile = new File(directory + finalFileName);
-            if(outputFile.exists()) throw new FileAlreadyExistsException("File already exists");
+            if (outputFile.exists()) throw new FileAlreadyExistsException("File already exists");
             FileUtils.touch(outputFile);
             FileUtils.writeByteArrayToFile(outputFile, FileUtils.readFileToByteArray(film.getFile()));
             log.info("Saved file at [{}]", outputFile.getPath());
-            return outputFile.getPath();
-        } catch (IOException e){
+//            return outputFile.getPath();
+        } catch (IOException e) {
             log.error("Something went wrong writing the film file: [{}], message: [{}]", finalFileName, e.getMessage());
             throw new FileSaveException(e.getMessage());
         }

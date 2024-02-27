@@ -5,7 +5,7 @@ import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Episode;
 import com.evilduck.filecatcher.model.Season;
 import com.evilduck.filecatcher.model.TvShow;
-import com.evilduck.filecatcher.respository.FileRepository;
+import com.evilduck.filecatcher.respository.TvShowRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -22,16 +22,37 @@ import java.util.regex.Pattern;
 @Service
 public class TvShowService extends FileService {
 
-    private static final Pattern FILE_NAME_PATTERN = Pattern.compile("(.*)(s[0-9]{2})(e[0-9]{2}).*\\.(.+)", Pattern.CASE_INSENSITIVE);
+    private final Pattern SEASON_FOLDER_PATTERN = Pattern.compile(".*([0-9]+).*");
+    private final Pattern SEASON_FROM_EPISODE_PATTERN = Pattern.compile(".*s([0-9]+).*");
+    private final Pattern EPISODE_NUMBER_PATTERN = Pattern.compile(".*e([0-9]+).*");
+
     private final ZipManager zipManager;
-    private final FileRepository tvShowRepository;
+    private final TvShowRepository tvShowRepository;
 
     protected TvShowService(final FileDefaults fileDefaults,
                             final ZipManager zipManager,
-                            final FileRepository tvShowRepository) {
-        super(fileDefaults, "application/zip");
+                            final TvShowRepository tvShowRepository) {
+        super(fileDefaults, "zip");
         this.zipManager = zipManager;
         this.tvShowRepository = tvShowRepository;
+    }
+
+    @Override
+    public void save(final Resource media, final String contentType) throws IOException {
+        if (correctContentType(contentType)) {
+            final File tempFolder = zipManager.unzipAlbum(media);
+            final String mediaName = media.getFilename();
+            if (mediaName == null) throw new IncorrectFileFormatException("Error accessing Filename");
+            if (isValidTvShowFolder(tempFolder)) {
+                final TvShow tvShow = parseTvShow(tempFolder, mediaName);
+                tvShowRepository.saveTvShow(tvShow);
+                log.info("Saved TV Show [{}]", tvShow.name());
+            } else {
+                throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
+            }
+        } else {
+            throw new IncorrectFileFormatException("File is not a ZIP archive");
+        }
     }
 
     private TvShow parseTvShow(final File tempTvShowFolder, final String tvShowName) {
@@ -70,18 +91,15 @@ public class TvShowService extends FileService {
     }
 
     private Optional<Integer> parseSeasonNumberFromFolder(final String folderName) {
-        final Pattern seasonPattern = Pattern.compile(".*([0-9]+).*");
-        return parseIntegerUsingPattern(folderName, seasonPattern);
+        return parseIntegerUsingPattern(folderName, SEASON_FOLDER_PATTERN);
     }
 
     private Optional<Integer> parseSeasonNumberFromEpisode(final String episodeNameRaw) {
-        final Pattern seasonPattern = Pattern.compile(".*s([0-9]+).*");
-        return parseIntegerUsingPattern(episodeNameRaw, seasonPattern);
+        return parseIntegerUsingPattern(episodeNameRaw, SEASON_FROM_EPISODE_PATTERN);
     }
 
     private Optional<Integer> parseEpisodeNumber(final String episodeNameRaw) {
-        final Pattern seasonPattern = Pattern.compile(".*e([0-9]+).*");
-        return parseIntegerUsingPattern(episodeNameRaw, seasonPattern);
+        return parseIntegerUsingPattern(episodeNameRaw, EPISODE_NUMBER_PATTERN);
     }
 
     private static Optional<Integer> parseIntegerUsingPattern(final String fileSystemName,
@@ -110,23 +128,6 @@ public class TvShowService extends FileService {
         final File[] list = directory.listFiles();
         if (list == null) throw new RuntimeException("Unable to list directory [" + directory.getPath() + ']');
         return list;
-    }
-
-    @Override
-    public void save(final Resource media, final String contentType) throws IOException {
-        if (correctContentType(contentType)) {
-            final File tempFolder = zipManager.unzipAlbum(media);
-            final String mediaName = media.getFilename();
-            if (mediaName == null) throw new IncorrectFileFormatException("Error accessing Filename");
-            if (isValidTvShowFolder(tempFolder)) {
-                final TvShow tvShow = parseTvShow(tempFolder, mediaName);
-                tvShowRepository.save(tempFolder, mediaName.replaceFirst("[.].+", ""));
-            } else {
-                throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
-            }
-        } else {
-            throw new IncorrectFileFormatException("File is not a ZIP archive");
-        }
     }
 
     private boolean isValidTvShowFolder(final File folder) {

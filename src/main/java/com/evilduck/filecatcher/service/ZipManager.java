@@ -25,6 +25,7 @@ public class ZipManager {
     }
 
     /**
+     * Please don't ever touch this :3 it currently works!
      * Takes a Zip archive and extracts it, as is to a temporary directory.
      *
      * @param resource A Zip archive.
@@ -61,6 +62,7 @@ public class ZipManager {
         final String canonRequestedDirPath = directory.getCanonicalPath();
         final String canonOutputFilePath = destinationFile.getCanonicalPath();
         if (!canonOutputFilePath.startsWith(canonRequestedDirPath + File.separator)) {
+            log.error("ZIP Slip protection activated! Job directory [{}]", directory.getPath());
             throw new IOException("Zip Entry is outside of target directory: " + zipEntry.getName());
         } else {
             return destinationFile;
