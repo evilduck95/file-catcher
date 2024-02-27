@@ -25,6 +25,7 @@ public class ZipManager {
     }
 
     /**
+     * Please don't ever touch this :3 it currently works!
      * Takes a Zip archive and extracts it, as is to a temporary directory.
      *
      * @param resource A Zip archive.
