@@ -8,8 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
@@ -60,7 +62,7 @@ public class TvShowRepository extends FileRepository {
         final Path episodeOutputPath = Path.of(directory, tvShowName, seasonFolderName, episodeFileName);
         final File episodeOutputFile = episodeOutputPath.toFile();
         FileUtils.createParentDirectories(episodeOutputFile);
-        FileUtils.writeByteArrayToFile(episodeOutputFile, FileUtils.readFileToByteArray(originalFile));
+        Files.copy(new FileInputStream(originalFile), episodeOutputFile.toPath());
     }
 
 }
