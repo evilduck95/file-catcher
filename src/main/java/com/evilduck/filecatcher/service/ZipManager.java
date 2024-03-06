@@ -1,7 +1,6 @@
 package com.evilduck.filecatcher.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -49,8 +48,7 @@ public class ZipManager {
                 if (!parent.isDirectory() && !parent.mkdirs()) {
                     throw new IOException("Unable to create directory: " + parent);
                 }
-                FileUtils.touch(newFile);
-                FileUtils.writeByteArrayToFile(newFile, zipInputStream.readAllBytes());
+                Files.copy(zipInputStream, newFile.toPath());
             }
             nextEntry = zipInputStream.getNextEntry();
         }
