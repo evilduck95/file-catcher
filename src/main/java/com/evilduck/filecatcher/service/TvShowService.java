@@ -58,18 +58,21 @@ public class TvShowService extends FileService {
     private TvShow parseTvShow(final File tempTvShowFolder, final String tvShowName) {
         final File[] seasonFolders = safeListDirectory(tempTvShowFolder);
         final TvShow tvShow = new TvShow(tvShowName.replaceFirst("\\..+$", ""), seasonFolders.length + 1);
-
+        log.info("Starting save process for TvShow [{}], found [{}] season folders", tvShowName, seasonFolders.length);
         for (final File seasonFolder : seasonFolders) {
             final File[] episodeFiles = safeListDirectory(seasonFolder);
             for (int e = 0; e < episodeFiles.length; e++) {
                 final File episodeFile = episodeFiles[e];
+                log.info("Parsing info from episode [{}]", episodeFile.getName());
                 final int currentSeasonNumber = parseSeasonNumberFromEpisode(episodeFile.getName())
                         .orElse(parseSeasonNumberFromFolder(seasonFolder.getName())
                                 .orElse(-1));
+                log.info("found season [{}] from episode name", currentSeasonNumber);
                 final Season existingSeason = tvShow.getSeason(currentSeasonNumber);
                 final Season season = existingSeason == null ? new Season(currentSeasonNumber, episodeFiles.length) : existingSeason;
                 if (existingSeason == null) tvShow.addSeason(season, season.seasonNumber());
                 final Episode episode = parseEpisode(tvShow.name(), season, episodeFile);
+                log.info("Adding episode [{}] to season [{}]", episode, currentSeasonNumber);
                 season.addEpisode(e, episode);
             }
         }
@@ -80,6 +83,7 @@ public class TvShowService extends FileService {
                                  final Season season,
                                  final File episodeFile) {
         final String episodeNameRaw = episodeFile.getName();
+        log.info("Parsing info from episode [{}]", episodeNameRaw);
         final int episodeNumber = parseEpisodeNumber(episodeNameRaw).orElse(-1);
         final Episode episode = new Episode(episodeNumber);
         final String fileExtension = parseExtension(episodeNameRaw);
@@ -87,6 +91,7 @@ public class TvShowService extends FileService {
         episode.setFile(episodeFile);
         episode.setExtension(fileExtension);
         episode.setName(episodeName);
+        log.info("Parsed following information [{}]", episode);
         return episode;
     }
 

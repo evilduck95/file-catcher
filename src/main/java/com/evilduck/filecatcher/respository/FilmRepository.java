@@ -21,7 +21,7 @@ public class FilmRepository extends FileRepository {
 
     public void save(final Film film) {
         final String finalFileName = String.format("%s(%4d).%s",
-                film.getName(),
+                film.getName().endsWith(String.valueOf(fileDefaults.getDelimiter())) ? film.getName() : film.getName() + fileDefaults.getDelimiter(),
                 film.getReleaseYear().getValue(),
                 film.getExtension());
         try {

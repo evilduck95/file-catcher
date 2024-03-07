@@ -1,9 +1,18 @@
 package com.evilduck.filecatcher.model;
 
+import java.util.Arrays;
+
 public record TvShow(String name, Season[] seasons) {
 
     public TvShow(String name, int numberOfSeasons) {
         this(name, new Season[numberOfSeasons]);
+    }
+
+    @Override
+    public String toString(){
+        return String.format("TvShow[name[%s] seasons[%s]]",
+                name,
+                Arrays.toString(seasons));
     }
 
     public void addSeason(final Season season,

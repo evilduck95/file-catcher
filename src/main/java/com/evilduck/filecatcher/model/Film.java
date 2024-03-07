@@ -14,5 +14,13 @@ public class Film extends Media {
     private int resolution;
     private Subtitles subtitles;
 
+    @Override
+    public String toString(){
+        return String.format("Film[%s resolution[%s] subtitles[%s]]",
+                super.toString(),
+                resolution,
+                subtitles.toString());
+    }
+
 }
 
