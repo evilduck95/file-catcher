@@ -15,7 +15,7 @@ public class Episode extends Media {
         return String.format("Episode[%s episodeNumber[%s] subtitles[%s]]",
                 super.toString(),
                 episodeNumber,
-                subtitles.toString());
+                subtitles);
     }
 
 }

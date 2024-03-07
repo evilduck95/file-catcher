@@ -19,7 +19,7 @@ public class Film extends Media {
         return String.format("Film[%s resolution[%s] subtitles[%s]]",
                 super.toString(),
                 resolution,
-                subtitles.toString());
+                subtitles);
     }
 
 }
