@@ -17,4 +17,13 @@ public abstract class Media {
     private File file;
     private Year releaseYear;
 
+    @Override
+    public String toString(){
+        return String.format("Media[name[%s] extension[%s] file[%s] releaseYear[%s]]",
+                name,
+                extension,
+                file.getPath(),
+                releaseYear.toString());
+    }
+
 }
