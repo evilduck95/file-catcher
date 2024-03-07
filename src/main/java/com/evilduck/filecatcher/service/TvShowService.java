@@ -79,7 +79,7 @@ public class TvShowService extends FileService {
             tvShowRepository.saveTvShow(tvShow);
             log.info("Saved TV Show [{}]", tvShow.name());
         } catch (IOException e) {
-            log.error("There was a problem processing TV Show with Job ID [{}]", tempFolder.getName());
+            log.error("There was a problem processing TV Show with Job ID [{}] {}", tempFolder.getName(), e.getMessage());
         }
     }
 

@@ -1,7 +1,6 @@
 package com.evilduck.filecatcher.respository;
 
 import com.evilduck.filecatcher.configuration.FileDefaults;
-import com.evilduck.filecatcher.exception.FileSaveException;
 import com.evilduck.filecatcher.model.Film;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,7 +30,6 @@ public class FilmRepository extends FileRepository {
             log.info("Saved file at [{}]", outputFile.getPath());
         } catch (IOException e) {
             log.error("Something went wrong writing the film file: [{}], message: [{}]", finalFileName, e.getMessage());
-            throw new FileSaveException(e.getMessage());
         }
     }
 }
