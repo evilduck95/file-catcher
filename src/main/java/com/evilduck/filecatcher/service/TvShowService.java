@@ -3,17 +3,22 @@ package com.evilduck.filecatcher.service;
 import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Episode;
+import com.evilduck.filecatcher.model.Job;
 import com.evilduck.filecatcher.model.Season;
 import com.evilduck.filecatcher.model.TvShow;
 import com.evilduck.filecatcher.respository.TvShowRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,25 +33,28 @@ public class TvShowService extends FileService {
 
     private final ZipManager zipManager;
     private final TvShowRepository tvShowRepository;
+    private final JobQueueService jobQueueService;
 
     protected TvShowService(final FileDefaults fileDefaults,
                             final ZipManager zipManager,
-                            final TvShowRepository tvShowRepository) {
+                            final TvShowRepository tvShowRepository,
+                            JobQueueService jobQueueService) {
         super(fileDefaults, "zip");
         this.zipManager = zipManager;
         this.tvShowRepository = tvShowRepository;
+        this.jobQueueService = jobQueueService;
     }
 
     @Override
-    public void save(final Resource media, final String contentType) throws IOException {
+    public String save(final Resource media, final String contentType) throws IOException {
         if (correctContentType(contentType)) {
             final File tempFolder = zipManager.unzipAlbum(media);
+            final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
             final String mediaName = media.getFilename();
+            metadataWriter.append(mediaName).close();
             if (mediaName == null) throw new IncorrectFileFormatException("Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
-                final TvShow tvShow = parseTvShow(tempFolder, mediaName);
-                tvShowRepository.saveTvShow(tvShow);
-                log.info("Saved TV Show [{}]", tvShow.name());
+                return tempFolder.getName();
             } else {
                 throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
             }
@@ -55,11 +63,35 @@ public class TvShowService extends FileService {
         }
     }
 
+    @Override
+    public void process(List<String> jobIds) {
+        for (String id : jobIds) {
+            final File tvShowFolder = zipManager.getJobDirectory(id);
+            final Job job = new Job(id, () -> processTvShow(tvShowFolder));
+            jobQueueService.addJob(job);
+        }
+    }
+
+    private void processTvShow(File tempFolder) {
+        final File metadata = getMetadataFileFor(tempFolder);
+        try {
+            final TvShow tvShow = parseTvShow(tempFolder, getShowNameFromMetadata(metadata));
+            tvShowRepository.saveTvShow(tvShow);
+            log.info("Saved TV Show [{}]", tvShow.name());
+        } catch (IOException e) {
+            log.error("There was a problem processing TV Show with Job ID [{}]", tempFolder.getName());
+        }
+    }
+
     private TvShow parseTvShow(final File tempTvShowFolder, final String tvShowName) {
         final File[] seasonFolders = safeListDirectory(tempTvShowFolder);
         final TvShow tvShow = new TvShow(tvShowName.replaceFirst("\\..+$", ""), seasonFolders.length + 1);
 
         for (final File seasonFolder : seasonFolders) {
+            if (!seasonFolder.isDirectory()) {
+                log.info("Skipping non-directory file [{}] in TV Show processing for [{}]", seasonFolder.getName(), tempTvShowFolder.getName());
+                continue;
+            }
             final File[] episodeFiles = safeListDirectory(seasonFolder);
             for (int e = 0; e < episodeFiles.length; e++) {
                 final File episodeFile = episodeFiles[e];
@@ -135,6 +167,10 @@ public class TvShowService extends FileService {
         if (seasons == null) return false;
         for (String season : seasons) {
             final File seasonFolder = Path.of(folder.getPath(), season).toFile();
+            if (!seasonFolder.isDirectory()) {
+                log.info("Found file at root of TV Show [{}]", seasonFolder.getName());
+                continue;
+            }
             final String[] episodePaths = seasonFolder.list();
             if (episodePaths == null) return false;
             for (String episode : episodePaths) {
@@ -147,6 +183,16 @@ public class TvShowService extends FileService {
             }
         }
         return false;
+    }
+
+    private String getShowNameFromMetadata(final File metadata) throws IOException {
+        final List<String> lines = FileUtils.readLines(metadata, Charset.defaultCharset());
+        if (lines.isEmpty()) throw new IllegalStateException("TV Show saved without name in metadata");
+        else return lines.get(0);
+    }
+
+    private static File getMetadataFileFor(File tempFolder) {
+        return tempFolder.toPath().resolve("metadata").toFile();
     }
 
 }

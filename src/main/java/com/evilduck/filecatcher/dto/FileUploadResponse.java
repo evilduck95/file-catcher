@@ -1,12 +1,5 @@
 package com.evilduck.filecatcher.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class FileUploadResponse {
-
-    private String message;
+public record FileUploadResponse(String message, String jobId) {
 
 }
