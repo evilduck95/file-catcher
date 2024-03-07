@@ -46,13 +46,16 @@ public class FilmService extends FileService {
         File[] filmFiles = safeListDirectory(filmFolder);
         for(File film : filmFiles){
             if(film.isFile()){
+                log.info("Got film, filename: [{}]", film.getName());
                 String filmFileNameCleansed = cleanseName(film.getName());
+                log.info("Filename cleansed, new filename: [{}]", filmFileNameCleansed);
                 final Film filmOut = new Film();
                 filmOut.setFile(film);
                 filmOut.setResolution(parseResolution(filmFileNameCleansed));
                 filmOut.setReleaseYear(parseYear(filmFileNameCleansed, filmOut.getResolution()));
                 filmOut.setExtension(parseExtension(film.getName()));
                 filmOut.setName(parseFilmName(filmFileNameCleansed));
+                log.info("Found following information for film: [{}]", filmOut);
                 filmRepository.save(filmOut);
             }
         }
@@ -67,6 +70,7 @@ public class FilmService extends FileService {
     private int parseResolution(final String filename){
         Matcher resolutionMatch = RESOLUTION_PATTERN.matcher(filename);
         if(resolutionMatch.find()) {
+            log.info("Found resolution [{}] for file.", resolutionMatch.group(1));
             return resolutionMatch.groupCount() == 1 ? Integer.parseInt(resolutionMatch.group(1)) : 0;
         }
         return 0;
@@ -79,6 +83,7 @@ public class FilmService extends FileService {
             for (int groupCounter = 0; groupCounter < yearMatch.groupCount(); groupCounter++) {
                 int testValue = Integer.parseInt(yearMatch.group(groupCounter + 1));
                 if (testValue != resolution) {
+                    log.info("Found year [{}] for file.", testValue);
                     return Year.of(testValue);
                 }
             }
@@ -89,6 +94,7 @@ public class FilmService extends FileService {
     private String parseFilmName(final String filename){
         Matcher filmNameMatch = FILM_NAME_PATTERN.matcher(filename);
         if(filmNameMatch.find()){
+            log.info("Found name [{}] for file.", filmNameMatch.group(1));
             return filmNameMatch.group(1);
         }
         return "";

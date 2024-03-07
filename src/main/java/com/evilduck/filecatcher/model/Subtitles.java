@@ -9,4 +9,10 @@ import java.io.File;
 @EqualsAndHashCode()
 public class Subtitles {
     private File file;
+
+    @Override
+    public String toString(){
+        return String.format("Subtitles[file[%s]]",
+                file.getPath());
+    }
 }
