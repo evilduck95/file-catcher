@@ -13,6 +13,6 @@ public class Subtitles {
     @Override
     public String toString(){
         return String.format("Subtitles[file[%s]]",
-                file.getAbsolutePath());
+                file.getPath());
     }
 }
