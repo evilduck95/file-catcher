@@ -3,6 +3,7 @@ package com.evilduck.filecatcher.service;
 import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Film;
+import com.evilduck.filecatcher.model.Job;
 import com.evilduck.filecatcher.respository.FilmRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.Year;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,22 +25,34 @@ public class FilmService extends FileService {
     private static final Pattern FILM_NAME_PATTERN = Pattern.compile("(.*?)_([0-9]{4})");
     private final ZipManager zipManager;
     private final FilmRepository filmRepository;
+    private final JobQueueService jobQueueService;
 
     public FilmService(FilmRepository filmRepository,
                        FileDefaults fileDefaults,
-                       ZipManager zipManager) {
+                       ZipManager zipManager,
+                       JobQueueService jobQueueService) {
         super(fileDefaults, "zip");
         this.filmRepository = filmRepository;
         this.zipManager = zipManager;
+        this.jobQueueService = jobQueueService;
     }
 
     @Override
-    public void save(final Resource filmsZip, final String contentType) throws IOException {
+    public String save(final Resource filmsZip, final String contentType) throws IOException {
         if (correctContentType(contentType)) {
             final File filmsFolder = zipManager.unzipAlbum(filmsZip);
-            parseFilm(filmsFolder);
+            return filmsFolder.getName();
         } else {
-            throw new IncorrectFileFormatException("File is not a Video");
+            throw new IncorrectFileFormatException("File is not an archive");
+        }
+    }
+
+    @Override
+    public void process(final List<String> jobIds) {
+        for (final String id : jobIds) {
+            final File filmsFolder = zipManager.getJobDirectory(id);
+            final Job job = new Job(id, () -> parseFilm(filmsFolder));
+            jobQueueService.addJob(job);
         }
     }
 
@@ -67,7 +81,7 @@ public class FilmService extends FileService {
         return list;
     }
 
-    private int parseResolution(final String filename){
+    private int parseResolution(final String filename) {
         Matcher resolutionMatch = RESOLUTION_PATTERN.matcher(filename);
         if(resolutionMatch.find()) {
             log.info("Found resolution [{}] for file.", resolutionMatch.group(1));

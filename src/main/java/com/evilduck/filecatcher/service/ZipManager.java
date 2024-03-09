@@ -23,6 +23,11 @@ public class ZipManager {
         this.tempDirectory = tempDirectory;
     }
 
+
+    public File getJobDirectory(final String jobId) {
+        return Path.of(tempDirectory, jobId).toFile();
+    }
+
     /**
      * Please don't ever touch this :3 it currently works!
      * Takes a Zip archive and extracts it, as is to a temporary directory.

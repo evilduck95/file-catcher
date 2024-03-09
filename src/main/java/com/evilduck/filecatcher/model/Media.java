@@ -23,7 +23,7 @@ public abstract class Media {
                 name,
                 extension,
                 file.getPath(),
-                releaseYear.toString());
+                releaseYear);
     }
 
 }

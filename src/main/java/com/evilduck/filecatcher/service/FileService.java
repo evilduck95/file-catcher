@@ -4,6 +4,7 @@ import com.evilduck.filecatcher.configuration.FileDefaults;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +19,9 @@ public abstract class FileService {
         this.expectedContentTypes = expectedContentTypes;
     }
 
-    public abstract void save(Resource media, String contentType) throws IOException;
+    public abstract String save(Resource media, String contentType) throws IOException;
+
+    public abstract void process(List<String> jobIds);
 
     boolean correctContentType(final String contentType) {
         if (contentType == null) return false;
@@ -40,5 +43,4 @@ public abstract class FileService {
         }
         return "";
     }
-
 }
