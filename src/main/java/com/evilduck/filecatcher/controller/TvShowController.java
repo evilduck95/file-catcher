@@ -11,6 +11,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/tv-show")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TvShowController {
 
     private final TvShowService tvShowService;
