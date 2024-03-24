@@ -11,7 +11,7 @@ public class JobRunResult {
 
     @Id
     private String id;
-    private boolean successful;
+    private Boolean successful;
     private List<JobError> errors = new ArrayList<>();
 
     public void addError(final JobError jobError) {

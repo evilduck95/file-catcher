@@ -15,10 +15,10 @@ public class GeneralControllerAdvice {
         return ResponseEntity.badRequest().body(fileErrorResponse);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<FileErrorResponse> handleGenericException(final Exception exception) {
-        final FileErrorResponse fileErrorResponse = new FileErrorResponse("Unknown", exception.getMessage());
-        return ResponseEntity.internalServerError().body(fileErrorResponse);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<FileErrorResponse> handleGenericException(final Exception exception) {
+//        final FileErrorResponse fileErrorResponse = new FileErrorResponse("Unknown", exception.getMessage());
+//        return ResponseEntity.internalServerError().body(fileErrorResponse);
+//    }
 
 }
