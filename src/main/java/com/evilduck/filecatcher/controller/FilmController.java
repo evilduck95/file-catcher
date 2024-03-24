@@ -11,6 +11,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/film")
+@CrossOrigin(origins = "http://localhost:3000")
 public class FilmController {
 
     private final FilmService filmService;

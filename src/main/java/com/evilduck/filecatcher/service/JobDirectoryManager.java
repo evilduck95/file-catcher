@@ -1,5 +1,6 @@
 package com.evilduck.filecatcher.service;
 
+import com.evilduck.filecatcher.exception.FileSaveException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -15,17 +16,26 @@ import java.util.zip.ZipInputStream;
 
 @Slf4j
 @Component
-public class ZipManager {
+public class JobDirectoryManager {
 
     private final String tempDirectory;
 
-    public ZipManager(@Value("${directories.temp-directory}") String tempDirectory) {
+    public JobDirectoryManager(@Value("${directories.temp-directory}") String tempDirectory) {
         this.tempDirectory = tempDirectory;
     }
 
 
     public File getJobDirectory(final String jobId) {
         return Path.of(tempDirectory, jobId).toFile();
+    }
+
+    public File tempStoreResource(final Resource resource) throws IOException {
+        final UUID jobId = UUID.randomUUID();
+        final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
+        if (resource.getFilename() == null) throw new FileSaveException("File has no filename");
+        final Path outputFile = workingDirectoryPath.resolve(resource.getFilename());
+        Files.copy(resource.getInputStream(), outputFile);
+        return workingDirectoryPath.toFile();
     }
 
     /**

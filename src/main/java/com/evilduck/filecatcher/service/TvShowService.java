@@ -31,16 +31,16 @@ public class TvShowService extends FileService {
     private final Pattern SEASON_FROM_EPISODE_PATTERN = Pattern.compile(".*s([0-9]+).*");
     private final Pattern EPISODE_NUMBER_PATTERN = Pattern.compile(".*e([0-9]+).*");
 
-    private final ZipManager zipManager;
+    private final JobDirectoryManager jobDirectoryManager;
     private final TvShowRepository tvShowRepository;
     private final JobQueueService jobQueueService;
 
     protected TvShowService(final FileDefaults fileDefaults,
-                            final ZipManager zipManager,
+                            final JobDirectoryManager jobDirectoryManager,
                             final TvShowRepository tvShowRepository,
                             JobQueueService jobQueueService) {
         super(fileDefaults, "zip");
-        this.zipManager = zipManager;
+        this.jobDirectoryManager = jobDirectoryManager;
         this.tvShowRepository = tvShowRepository;
         this.jobQueueService = jobQueueService;
     }
@@ -48,7 +48,7 @@ public class TvShowService extends FileService {
     @Override
     public String save(final Resource media, final String contentType) throws IOException {
         if (correctContentType(contentType)) {
-            final File tempFolder = zipManager.unzipAlbum(media);
+            final File tempFolder = jobDirectoryManager.unzipAlbum(media);
             final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
             final String mediaName = media.getFilename();
             metadataWriter.append(mediaName).close();
@@ -66,7 +66,7 @@ public class TvShowService extends FileService {
     @Override
     public void process(List<String> jobIds) {
         for (String id : jobIds) {
-            final File tvShowFolder = zipManager.getJobDirectory(id);
+            final File tvShowFolder = jobDirectoryManager.getJobDirectory(id);
             final Job job = new Job(id, () -> processTvShow(tvShowFolder));
             jobQueueService.addJob(job);
         }

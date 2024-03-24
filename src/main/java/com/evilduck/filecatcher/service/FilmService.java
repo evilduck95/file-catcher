@@ -23,24 +23,24 @@ public class FilmService extends FileService {
     private static final Pattern RESOLUTION_PATTERN = Pattern.compile("(240|288|480|576|720|1080|1440|2160|4320)");
     private static final Pattern YEAR_PATTERN = Pattern.compile("([0-9]{4})");
     private static final Pattern FILM_NAME_PATTERN = Pattern.compile("(.*?)_([0-9]{4})");
-    private final ZipManager zipManager;
+    private final JobDirectoryManager jobDirectoryManager;
     private final FilmRepository filmRepository;
     private final JobQueueService jobQueueService;
 
     public FilmService(FilmRepository filmRepository,
                        FileDefaults fileDefaults,
-                       ZipManager zipManager,
+                       JobDirectoryManager jobDirectoryManager,
                        JobQueueService jobQueueService) {
-        super(fileDefaults, "zip");
+        super(fileDefaults, "zip", "video");
         this.filmRepository = filmRepository;
-        this.zipManager = zipManager;
+        this.jobDirectoryManager = jobDirectoryManager;
         this.jobQueueService = jobQueueService;
     }
 
     @Override
-    public String save(final Resource filmsZip, final String contentType) throws IOException {
+    public String save(final Resource filmResource, final String contentType) throws IOException {
         if (correctContentType(contentType)) {
-            final File filmsFolder = zipManager.unzipAlbum(filmsZip);
+            final File filmsFolder = isZipArchive(contentType) ? jobDirectoryManager.unzipAlbum(filmResource) : jobDirectoryManager.tempStoreResource(filmResource);
             return filmsFolder.getName();
         } else {
             throw new IncorrectFileFormatException("File is not an archive");
@@ -50,10 +50,14 @@ public class FilmService extends FileService {
     @Override
     public void process(final List<String> jobIds) {
         for (final String id : jobIds) {
-            final File filmsFolder = zipManager.getJobDirectory(id);
+            final File filmsFolder = jobDirectoryManager.getJobDirectory(id);
             final Job job = new Job(id, () -> parseFilm(filmsFolder));
             jobQueueService.addJob(job);
         }
+    }
+
+    private boolean isZipArchive(final String contentType) {
+        return contentType.contains("zip");
     }
 
     private void parseFilm(final File filmFolder){
@@ -93,7 +97,7 @@ public class FilmService extends FileService {
     private Year parseYear(final String filename, int resolution){
         Matcher yearMatch = YEAR_PATTERN.matcher(filename);
         if(yearMatch.find()) {
-            // Assume the first 4 digit number that is not the resolution would be the year of release
+            // Assume the first 4-digit number that is not the resolution would be the year of release
             for (int groupCounter = 0; groupCounter < yearMatch.groupCount(); groupCounter++) {
                 int testValue = Integer.parseInt(yearMatch.group(groupCounter + 1));
                 if (testValue != resolution) {
