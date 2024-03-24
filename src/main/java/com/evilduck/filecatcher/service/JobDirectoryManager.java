@@ -32,7 +32,7 @@ public class JobDirectoryManager {
     public File tempStoreResource(final Resource resource) throws IOException {
         final UUID jobId = UUID.randomUUID();
         final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
-        if (resource.getFilename() == null) throw new FileSaveException("File has no filename");
+        if (resource.getFilename() == null) throw new FileSaveException(resource.getFilename(), "File has no filename");
         final Path outputFile = workingDirectoryPath.resolve(resource.getFilename());
         Files.copy(resource.getInputStream(), outputFile);
         return workingDirectoryPath.toFile();

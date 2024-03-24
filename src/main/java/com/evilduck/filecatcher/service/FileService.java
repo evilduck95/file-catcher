@@ -3,6 +3,7 @@ package com.evilduck.filecatcher.service;
 import com.evilduck.filecatcher.configuration.FileDefaults;
 import org.springframework.core.io.Resource;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,11 +32,11 @@ public abstract class FileService {
         return false;
     }
 
-    String cleanseName(final String filename){
+    protected String cleanseName(final String filename) {
         return filename.replaceAll(fileDefaults.getCleanseRegex(), String.valueOf(fileDefaults.getDelimiter()));
     }
 
-    String parseExtension(final String filename){
+    protected String parseExtension(final String filename) {
         final Pattern extensionPattern = Pattern.compile(fileDefaults.getExtensionRegex());
         final Matcher extensionMatcher = extensionPattern.matcher(filename);
         if(extensionMatcher.find()){
@@ -43,4 +44,9 @@ public abstract class FileService {
         }
         return "";
     }
+
+    protected File getMetadataFileFor(File tempFolder) {
+        return tempFolder.toPath().resolve("metadata").toFile();
+    }
+
 }

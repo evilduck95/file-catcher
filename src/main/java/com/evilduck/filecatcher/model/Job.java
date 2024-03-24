@@ -1,5 +1,7 @@
 package com.evilduck.filecatcher.model;
 
-public record Job(String jobId, Runnable jobRunner) {
+import com.evilduck.filecatcher.respository.JobRunner;
+
+public record Job(String jobId, JobRunner jobRunner) {
 
 }

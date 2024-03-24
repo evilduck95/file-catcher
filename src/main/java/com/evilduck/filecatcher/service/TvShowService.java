@@ -52,14 +52,14 @@ public class TvShowService extends FileService {
             final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
             final String mediaName = media.getFilename();
             metadataWriter.append(mediaName).close();
-            if (mediaName == null) throw new IncorrectFileFormatException("Error accessing Filename");
+            if (mediaName == null) throw new IncorrectFileFormatException(mediaName, "Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
                 return tempFolder.getName();
             } else {
-                throw new IncorrectFileFormatException("Unable to find at least one video file in every season");
+                throw new IncorrectFileFormatException(mediaName, "Unable to find at least one video file in every season");
             }
         } else {
-            throw new IncorrectFileFormatException("File is not a ZIP archive");
+            throw new IncorrectFileFormatException(media.getFilename(), "File is not a ZIP archive");
         }
     }
 
@@ -80,6 +80,22 @@ public class TvShowService extends FileService {
             log.info("Saved TV Show [{}]", tvShow.name());
         } catch (IOException e) {
             log.error("There was a problem processing TV Show with Job ID [{}] {}", tempFolder.getName(), e.getMessage());
+        }
+        try {
+            cleanupTvShowFolder(tempFolder);
+        } catch (IOException e) {
+            log.error("There was a problem cleaning up TV Show with Job ID [{}] {}", tempFolder.getName(), e.getMessage());
+        }
+    }
+
+    private void cleanupTvShowFolder(final File tempFolder) throws IOException {
+        final File[] files = safeListDirectory(tempFolder);
+        for (File file : files) {
+            if (file.isDirectory()) {
+                FileUtils.deleteDirectory(file);
+            } else {
+                FileUtils.delete(file);
+            }
         }
     }
 
@@ -194,10 +210,6 @@ public class TvShowService extends FileService {
         final List<String> lines = FileUtils.readLines(metadata, Charset.defaultCharset());
         if (lines.isEmpty()) throw new IllegalStateException("TV Show saved without name in metadata");
         else return lines.get(0);
-    }
-
-    private static File getMetadataFileFor(File tempFolder) {
-        return tempFolder.toPath().resolve("metadata").toFile();
     }
 
 }

@@ -1,8 +1,7 @@
 package com.evilduck.filecatcher.exception;
 
-public class FileSaveException extends RuntimeException {
-    public FileSaveException(String message) {
-        super(message);
+public class FileSaveException extends FileProcessingException {
+    public FileSaveException(String mediaName, String errorMessage) {
+        super(mediaName, errorMessage);
     }
-
 }

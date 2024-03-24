@@ -18,18 +18,15 @@ public class FilmRepository extends FileRepository {
         super(fileDefaults, directory);
     }
 
-    public void save(final Film film) {
+    public void save(final Film film) throws IOException {
         final String finalFileName = String.format("%s(%4d).%s",
                 film.getName().endsWith(String.valueOf(fileDefaults.getDelimiter())) ? film.getName() : film.getName() + fileDefaults.getDelimiter(),
                 film.getReleaseYear().getValue(),
                 film.getExtension());
-        try {
             final File outputFile = new File(directory + finalFileName);
-            if (outputFile.exists()) throw new FileAlreadyExistsException("File already exists");
+        if (outputFile.exists())
+            throw new FileAlreadyExistsException("File " + outputFile.getName() + " already exists");
             Files.copy(film.getFile().toPath(), outputFile.toPath());
             log.info("Saved file at [{}]", outputFile.getPath());
-        } catch (IOException e) {
-            log.error("Something went wrong writing the film file: [{}], message: [{}]", finalFileName, e.getMessage());
-        }
     }
 }

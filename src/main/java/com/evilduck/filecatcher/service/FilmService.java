@@ -1,11 +1,13 @@
 package com.evilduck.filecatcher.service;
 
 import com.evilduck.filecatcher.configuration.FileDefaults;
+import com.evilduck.filecatcher.exception.FileProcessingException;
 import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Film;
 import com.evilduck.filecatcher.model.Job;
 import com.evilduck.filecatcher.respository.FilmRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +45,7 @@ public class FilmService extends FileService {
             final File filmsFolder = isZipArchive(contentType) ? jobDirectoryManager.unzipAlbum(filmResource) : jobDirectoryManager.tempStoreResource(filmResource);
             return filmsFolder.getName();
         } else {
-            throw new IncorrectFileFormatException("File is not an archive");
+            throw new IncorrectFileFormatException(filmResource.getFilename(), "File is not a ZIP Archive or Video");
         }
     }
 
@@ -60,8 +62,8 @@ public class FilmService extends FileService {
         return contentType.contains("zip");
     }
 
-    private void parseFilm(final File filmFolder){
-        File[] filmFiles = safeListDirectory(filmFolder);
+    private void parseFilm(final File filmFolder) throws FileProcessingException {
+        final File[] filmFiles = safeListDirectory(filmFolder);
         for(File film : filmFiles){
             if(film.isFile()){
                 log.info("Got film, filename: [{}]", film.getName());
@@ -74,7 +76,23 @@ public class FilmService extends FileService {
                 filmOut.setExtension(parseExtension(film.getName()));
                 filmOut.setName(parseFilmName(filmFileNameCleansed));
                 log.info("Found following information for film: [{}]", filmOut);
-                filmRepository.save(filmOut);
+                try {
+                    filmRepository.save(filmOut);
+                } catch (IOException e) {
+                    log.error("Something went wrong writing the film: [{}], message: [{}]", film.getName(), e.getMessage());
+                    throw new FileProcessingException(film.getName(), e.getMessage());
+                }
+            }
+        }
+        cleanupFilmFolder(filmFolder, filmFiles);
+    }
+
+    private void cleanupFilmFolder(final File filmFolder, final File[] filmFiles) {
+        for (File filmFile : filmFiles) {
+            try {
+                FileUtils.delete(filmFile);
+            } catch (IOException e) {
+                log.error("There was a problem cleaning up Film directory [{}] {}", filmFolder.getName(), e.getMessage());
             }
         }
     }
