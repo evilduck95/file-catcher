@@ -23,10 +23,10 @@ public class FilmRepository extends FileRepository {
                 film.getName().endsWith(String.valueOf(fileDefaults.getDelimiter())) ? film.getName() : film.getName() + fileDefaults.getDelimiter(),
                 film.getReleaseYear().getValue(),
                 film.getExtension());
-            final File outputFile = new File(directory + finalFileName);
+        final File outputFile = new File(directory + finalFileName);
         if (outputFile.exists())
             throw new FileAlreadyExistsException("File " + outputFile.getName() + " already exists");
-            Files.copy(film.getFile().toPath(), outputFile.toPath());
-            log.info("Saved file at [{}]", outputFile.getPath());
+        Files.copy(film.getFile().toPath(), outputFile.toPath());
+        log.info("Saved file at [{}]", outputFile.getPath());
     }
 }
