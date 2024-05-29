@@ -80,6 +80,7 @@ public class FilmService extends FileService {
                     filmRepository.save(filmOut);
                 } catch (IOException e) {
                     log.error("Something went wrong writing the film: [{}], message: [{}]", film.getName(), e.getMessage());
+                    log.error("IOException trace", e);
                     throw new FileProcessingException(film.getName(), e.getMessage());
                 }
             }

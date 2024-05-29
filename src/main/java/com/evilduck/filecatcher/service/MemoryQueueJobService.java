@@ -88,7 +88,8 @@ public class MemoryQueueJobService implements JobQueueService {
     @Scheduled(fixedRate = 10000L)
     public void checkAndRunJobs() {
         final int currentJobCount = jobRunningCount.get();
-        log.info("[{}/{}] jobs running, checking for more jobs.", currentJobCount, MAX_JOB_COUNT);
+        if (currentJobCount > 0)
+            log.info("[{}/{}] jobs running, checking for more jobs.", currentJobCount, MAX_JOB_COUNT);
         while (jobRunningCount.get() < MAX_JOB_COUNT) {
             final Job nextJob = JOB_QUEUE.poll();
             if (nextJob == null) return;
