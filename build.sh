@@ -1,2 +1,4 @@
 ./gradlew clean bootJar
-docker-compose --env-file /home/franky/environment/file-catcher.env up --build -d --force-recreate
+docker build -t file-catcher .
+docker tag file-catcher evilduck95.net/file-catcher
+docker push evilduck95.net/file-catcher

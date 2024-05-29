@@ -3,11 +3,12 @@ services:
   media-file-services:
     container_name: file-catcher
     environment:
-      - FILMS_DIRECTORY=films/
+      - FILMS_DIRECTORY=movies/
       - MUSIC_DIRECTORY=music/
-      - TV_SHOWS_DIRECTORY=tv-shows/
+      - TV_SHOWS_DIRECTORY=tv_shows/
       - TEMP_DIRECTORY=tmp/
-      - ROOT_DIRECTORY=/media/
+      - ROOT_DIRECTORY=/media/hosted/
+      - MONGO_HOST=localhost
     volumes:
       - "$HOST_FILMS_DIRECTORY:/media/films"
       - "$HOST_MUSIC_DIRECTORY:/media/music"
@@ -15,6 +16,10 @@ services:
     build: .
     ports:
       - "8200:8200"
+    networks:
+      - file-catcher-network
+  mongo:
+    container_name: mongo
     networks:
       - file-catcher-network
 networks:
