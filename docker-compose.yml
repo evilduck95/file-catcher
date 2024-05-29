@@ -8,7 +8,7 @@ services:
       - TV_SHOWS_DIRECTORY=tv_shows/
       - TEMP_DIRECTORY=tmp/
       - ROOT_DIRECTORY=/media/hosted/
-      - MONGO_HOST=localhost
+      - MONGO_HOST=file-catcher-mongo
     volumes:
       - "$HOST_FILMS_DIRECTORY:/media/films"
       - "$HOST_MUSIC_DIRECTORY:/media/music"
@@ -20,6 +20,7 @@ services:
       - file-catcher-network
   mongo:
     image: mongo
+    container_name: file-catcher-mongo
     networks:
       - file-catcher-network
 networks:
