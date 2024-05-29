@@ -1,2 +1,2 @@
 ./gradlew clean bootJar
-docker-compose up -d --force-recreate
+docker-compose --env-file "$1" up -d --force-recreate
