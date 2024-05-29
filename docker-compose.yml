@@ -3,16 +3,16 @@ services:
   media-file-services:
     container_name: file-catcher
     environment:
-      - FILMS_DIRECTORY=movies/
+      - FILMS_DIRECTORY=films/
       - MUSIC_DIRECTORY=music/
       - TV_SHOWS_DIRECTORY=tv_shows/
       - TEMP_DIRECTORY=tmp/
-      - ROOT_DIRECTORY=/media/hosted/
+      - ROOT_DIRECTORY=/media/
       - MONGO_HOST=file-catcher-mongo
     volumes:
       - "$HOST_FILMS_DIRECTORY:/media/films"
       - "$HOST_MUSIC_DIRECTORY:/media/music"
-      - "$HOST_TV_SHOWS_DIRECTORY:/media/tv-shows"
+      - "$HOST_TV_SHOWS_DIRECTORY:/media/tv_shows"
     build: .
     ports:
       - "8200:8200"
