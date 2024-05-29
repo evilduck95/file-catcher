@@ -53,22 +53,30 @@ public class MemoryQueueJobService implements JobQueueService {
         if (jobRunResult.isPresent()) {
             final JobRunResult result = jobRunResult.get();
             if (result.getSuccessful() == null) {
-                return new JobStatusResponse("Pending", "This Job hasn't yet started", null);
+                return new JobStatusResponse(
+                        jobId, "Pending", "This Job hasn't yet started", null);
             } else if (result.getSuccessful()) {
                 return new JobStatusResponse(
+                        jobId,
                         "Successful",
                         "This Job has completed successfully",
                         null
                 );
             } else {
                 return new JobStatusResponse(
+                        jobId,
                         "Unsuccessful",
                         "There were problems with completing this Job",
                         result.getErrors().stream().map(this::mapToJobFileError).toList()
                 );
             }
         } else {
-            return new JobStatusResponse("Unknown", "Unable to find Job, has /process been called?", null);
+            return new JobStatusResponse(
+                    jobId,
+                    "Unknown",
+                    "Unable to find Job, has /process been called?",
+                    null
+            );
         }
 
     }
