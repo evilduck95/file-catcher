@@ -19,7 +19,7 @@ services:
     networks:
       - file-catcher-network
   mongo:
-    container_name: mongo
+    image: mongo
     networks:
       - file-catcher-network
 networks:
