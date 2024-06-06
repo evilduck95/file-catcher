@@ -9,12 +9,12 @@ import com.evilduck.filecatcher.model.TvShow;
 import com.evilduck.filecatcher.respository.TvShowRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -46,11 +46,12 @@ public class TvShowService extends FileService {
     }
 
     @Override
-    public String save(final Resource media, final String contentType) throws IOException {
+    public String save(final InputStream inputStream,
+                       final String mediaName,
+                       final String contentType) throws IOException {
         if (correctContentType(contentType)) {
-            final File tempFolder = jobDirectoryManager.unzipAlbum(media);
+            final File tempFolder = jobDirectoryManager.unzipAlbum(inputStream);
             final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
-            final String mediaName = media.getFilename();
             metadataWriter.append(mediaName).close();
             if (mediaName == null) throw new IncorrectFileFormatException(mediaName, "Error accessing Filename");
             if (isValidTvShowFolder(tempFolder)) {
@@ -59,7 +60,7 @@ public class TvShowService extends FileService {
                 throw new IncorrectFileFormatException(mediaName, "Unable to find at least one video file in every season");
             }
         } else {
-            throw new IncorrectFileFormatException(media.getFilename(), "File is not a ZIP archive");
+            throw new IncorrectFileFormatException(mediaName, "File is not a ZIP archive");
         }
     }
 

@@ -8,11 +8,11 @@ import com.evilduck.filecatcher.model.Job;
 import com.evilduck.filecatcher.respository.FilmRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Year;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,19 +33,19 @@ public class FilmService extends FileService {
                        FileDefaults fileDefaults,
                        JobDirectoryManager jobDirectoryManager,
                        JobQueueService jobQueueService) {
-        super(fileDefaults, "zip", "video");
+        super(fileDefaults, "video");
         this.filmRepository = filmRepository;
         this.jobDirectoryManager = jobDirectoryManager;
         this.jobQueueService = jobQueueService;
     }
 
     @Override
-    public String save(final Resource filmResource, final String contentType) throws IOException {
+    public String save(final InputStream inputStream, final String fileName, final String contentType) throws IOException {
         if (correctContentType(contentType)) {
-            final File filmsFolder = isZipArchive(contentType) ? jobDirectoryManager.unzipAlbum(filmResource) : jobDirectoryManager.tempStoreResource(filmResource);
-            return filmsFolder.getName();
+            final File outputFile = jobDirectoryManager.tempStoreStreamAsFile(fileName, inputStream);
+            return outputFile.getName();
         } else {
-            throw new IncorrectFileFormatException(filmResource.getFilename(), "File is not a ZIP Archive or Video");
+            throw new IncorrectFileFormatException(fileName, "File is not a ZIP Archive or Video");
         }
     }
 
@@ -56,10 +56,6 @@ public class FilmService extends FileService {
             final Job job = new Job(id, () -> parseFilm(filmsFolder));
             jobQueueService.addJob(job);
         }
-    }
-
-    private boolean isZipArchive(final String contentType) {
-        return contentType.contains("zip");
     }
 
     private void parseFilm(final File filmFolder) throws FileProcessingException {

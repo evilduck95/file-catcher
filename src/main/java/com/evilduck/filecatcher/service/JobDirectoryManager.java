@@ -1,13 +1,14 @@
 package com.evilduck.filecatcher.service;
 
-import com.evilduck.filecatcher.exception.FileSaveException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -29,25 +30,27 @@ public class JobDirectoryManager {
         return Path.of(tempDirectory, jobId).toFile();
     }
 
-    public File tempStoreResource(final Resource resource) throws IOException {
+    public File tempStoreStreamAsFile(final String fileName,
+                                      final InputStream inputStream) throws IOException {
         final UUID jobId = UUID.randomUUID();
         final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
-        if (resource.getFilename() == null) throw new FileSaveException(resource.getFilename(), "File has no filename");
-        final Path outputFile = workingDirectoryPath.resolve(resource.getFilename());
-        Files.copy(resource.getInputStream(), outputFile);
-        return workingDirectoryPath.toFile();
+        final String outputFilePath = workingDirectoryPath.resolve(fileName).toString();
+        try (final FileOutputStream outputStream = new FileOutputStream(outputFilePath)) {
+            IOUtils.copy(inputStream, outputStream);
+            return new File(outputFilePath);
+        }
     }
 
     /**
      * Please don't ever touch this :3 it currently works!
      * Takes a Zip archive and extracts it, as is to a temporary directory.
      *
-     * @param resource A Zip archive.
+     * @param inputStream A Zip archive stream.
      * @return Path to the temporary directory containing the extracted archive.
      * @throws IOException when something goes wrong reading the Zip archive or creating a directory.
      */
-    public File unzipAlbum(final Resource resource) throws IOException {
-        final ZipInputStream zipInputStream = new ZipInputStream(resource.getInputStream());
+    public File unzipAlbum(final InputStream inputStream) throws IOException {
+        final ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         ZipEntry nextEntry = zipInputStream.getNextEntry();
         final UUID jobId = UUID.randomUUID();
         log.info("Unzipping Album, Job ID [{}]", jobId);
@@ -69,6 +72,7 @@ public class JobDirectoryManager {
         }
         return workingDirectoryPath.toFile();
     }
+
 
     private static File createNewFile(final File directory, final ZipEntry zipEntry) throws IOException {
         final File destinationFile = new File(directory, zipEntry.getName());
