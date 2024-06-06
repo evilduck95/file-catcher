@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
-import java.time.Year;
 
 @Slf4j
 public class FilmRepository extends FileRepository {
@@ -21,8 +20,7 @@ public class FilmRepository extends FileRepository {
 
     public void save(final Film film) throws IOException {
         final String finalFileName;
-        // If release year was found
-        if(film.getReleaseYear().getValue() != Year.MIN_VALUE){
+        if(film.getReleaseYear() != null){
             finalFileName = String.format("%s(%4d).%s",
                     film.getName().endsWith(String.valueOf(fileDefaults.getDelimiter())) ? film.getName() : film.getName() + fileDefaults.getDelimiter(),
                     film.getReleaseYear().getValue(),
