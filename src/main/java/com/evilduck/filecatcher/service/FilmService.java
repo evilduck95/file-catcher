@@ -121,7 +121,7 @@ public class FilmService extends FileService {
                 }
             }
         }
-        return Year.of(Year.MIN_VALUE);
+        return null;
     }
 
     private String parseFilmName(final String filename){
