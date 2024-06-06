@@ -40,10 +40,11 @@ public class FilmService extends FileService {
     }
 
     @Override
-    public String save(final InputStream inputStream, final String fileName, final String contentType) throws IOException {
+    public String save(final InputStream inputStream,
+                       final String fileName,
+                       final String contentType) throws IOException {
         if (correctContentType(contentType)) {
-            final File outputFile = jobDirectoryManager.tempStoreStreamAsFile(fileName, inputStream);
-            return outputFile.getName();
+            return jobDirectoryManager.tempStoreStreamAsFile(fileName, inputStream);
         } else {
             throw new IncorrectFileFormatException(fileName, "File is not a ZIP Archive or Video");
         }
@@ -60,7 +61,7 @@ public class FilmService extends FileService {
 
     private void parseFilm(final File filmFolder) throws FileProcessingException {
         final File[] filmFiles = safeListDirectory(filmFolder);
-        for(File film : filmFiles){
+        for (File film : filmFiles) {
             if(film.isFile()){
                 log.info("Got film, filename: [{}]", film.getName());
                 String filmFileNameCleansed = cleanseName(film.getName());

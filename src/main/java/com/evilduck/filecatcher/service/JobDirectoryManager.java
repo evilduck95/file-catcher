@@ -30,14 +30,14 @@ public class JobDirectoryManager {
         return Path.of(tempDirectory, jobId).toFile();
     }
 
-    public File tempStoreStreamAsFile(final String fileName,
+    public String tempStoreStreamAsFile(final String fileName,
                                       final InputStream inputStream) throws IOException {
         final UUID jobId = UUID.randomUUID();
         final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
         final String outputFilePath = workingDirectoryPath.resolve(fileName).toString();
         try (final FileOutputStream outputStream = new FileOutputStream(outputFilePath)) {
             IOUtils.copy(inputStream, outputStream);
-            return new File(outputFilePath);
+            return jobId.toString();
         }
     }
 

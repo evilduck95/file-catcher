@@ -13,7 +13,6 @@ services:
       - "$HOST_FILMS_DIRECTORY:/media/films"
       - "$HOST_MUSIC_DIRECTORY:/media/music"
       - "$HOST_TV_SHOWS_DIRECTORY:/media/tv_shows"
-      - "$HOST_TEMP_DIRECTORY:/media/tmp"
     build: .
     ports:
       - "8200:8200"
