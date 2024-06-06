@@ -1,10 +1,10 @@
 package com.evilduck.filecatcher.service;
 
 import com.evilduck.filecatcher.configuration.FileDefaults;
-import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +20,7 @@ public abstract class FileService {
         this.expectedContentTypes = expectedContentTypes;
     }
 
-    public abstract String save(Resource media, String contentType) throws IOException;
+    public abstract String save(InputStream inputStream, String fileName, String contentType) throws IOException;
 
     public abstract void process(List<String> jobIds);
 

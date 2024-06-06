@@ -11,7 +11,7 @@ public class GeneralControllerAdvice {
 
     @ExceptionHandler(IncorrectFileFormatException.class)
     public ResponseEntity<FileErrorResponse> handleIncorrectFileFormatException(final IncorrectFileFormatException exception) {
-        final FileErrorResponse fileErrorResponse = new FileErrorResponse(exception.getMediaName(), exception.getMessage());
+        final FileErrorResponse fileErrorResponse = new FileErrorResponse(exception.getMediaName(), exception.getErrorMessage());
         return ResponseEntity.badRequest().body(fileErrorResponse);
     }
 
