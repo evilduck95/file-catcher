@@ -47,20 +47,41 @@ public class TvShowService extends FileService {
 
     @Override
     public String save(final InputStream inputStream,
-                       final String mediaName,
+                       final String fileName,
                        final String contentType) throws IOException {
         if (correctContentType(contentType)) {
             final File tempFolder = jobDirectoryManager.unzipAlbum(inputStream);
             final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
-            metadataWriter.append(mediaName).close();
-            if (mediaName == null) throw new IncorrectFileFormatException(mediaName, "Error accessing Filename");
+            metadataWriter.append(fileName).close();
+            if (fileName == null) {
+                throw new IncorrectFileFormatException(null, "Error accessing Filename");
+            }
             if (isValidTvShowFolder(tempFolder)) {
                 return tempFolder.getName();
             } else {
-                throw new IncorrectFileFormatException(mediaName, "Unable to find at least one video file in every season");
+                throw new IncorrectFileFormatException(fileName, "Unable to find at least one video file in every season");
             }
         } else {
-            throw new IncorrectFileFormatException(mediaName, "File is not a ZIP archive");
+            throw new IncorrectFileFormatException(fileName, "File is not a ZIP archive");
+        }
+    }
+
+    @Override
+    public String saveOrAppend(InputStream inputStream, String fileName, String contentType) throws IOException {
+        if (correctContentType(contentType)) {
+            final File tempFolder = jobDirectoryManager.unzipAlbum(inputStream);
+            final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
+            metadataWriter.append(fileName).close();
+            if (fileName == null) {
+                throw new IncorrectFileFormatException(null, "Error accessing Filename");
+            }
+            if (isValidTvShowFolder(tempFolder)) {
+                return tempFolder.getName();
+            } else {
+                throw new IncorrectFileFormatException(fileName, "Unable to find at least one video file in every season");
+            }
+        } else {
+            throw new IncorrectFileFormatException(fileName, "File is not a ZIP archive");
         }
     }
 

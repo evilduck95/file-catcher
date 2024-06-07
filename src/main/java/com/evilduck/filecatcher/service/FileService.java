@@ -21,6 +21,8 @@ public abstract class FileService {
     }
 
     public abstract String save(InputStream inputStream, String fileName, String contentType) throws IOException;
+    public abstract String saveOrAppend(InputStream inputStream, String fileName, String contentType) throws IOException;
+
 
     public abstract void process(List<String> jobIds);
 

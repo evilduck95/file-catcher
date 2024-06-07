@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -36,6 +38,16 @@ public class JobDirectoryManager {
         final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
         final String outputFilePath = workingDirectoryPath.resolve(fileName).toString();
         try (final FileOutputStream outputStream = new FileOutputStream(outputFilePath)) {
+            IOUtils.copy(inputStream, outputStream);
+            return jobId.toString();
+        }
+    }
+    public String appendStreamToFile(final String fileName,
+                                      final InputStream inputStream) throws IOException {
+        final UUID jobId = UUID.randomUUID();
+        final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
+        final String outputFilePath = workingDirectoryPath.resolve(fileName).toString();
+        try (final FileOutputStream outputStream = new FileOutputStream(outputFilePath, true)) {
             IOUtils.copy(inputStream, outputStream);
             return jobId.toString();
         }
