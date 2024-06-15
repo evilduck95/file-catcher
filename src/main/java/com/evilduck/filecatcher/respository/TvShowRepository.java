@@ -62,7 +62,9 @@ public class TvShowRepository extends FileRepository {
         final Path episodeOutputPath = Path.of(directory, tvShowName, seasonFolderName, episodeFileName);
         final File episodeOutputFile = episodeOutputPath.toFile();
         FileUtils.createParentDirectories(episodeOutputFile);
-        Files.copy(new FileInputStream(originalFile), episodeOutputFile.toPath());
+        final FileInputStream fileInputStream = new FileInputStream(originalFile);
+        Files.copy(fileInputStream, episodeOutputFile.toPath());
+        fileInputStream.close();
     }
 
 }

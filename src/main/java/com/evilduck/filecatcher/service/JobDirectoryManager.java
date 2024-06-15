@@ -65,12 +65,13 @@ public class JobDirectoryManager {
      * @return Path to the temporary directory containing the extracted archive.
      * @throws IOException when something goes wrong reading the Zip archive or creating a directory.
      */
-    public File unzipAlbum(final InputStream inputStream) throws IOException {
+    public File unzipAlbum(final InputStream inputStream,
+                           final String fileName) throws IOException {
         final ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+        final UUID extractDir = UUID.randomUUID();
+        final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory, fileName, extractDir.toString()));
+        log.info("Unzipping Album, Job ID [{}] to [{}]", fileName, workingDirectoryPath);
         ZipEntry nextEntry = zipInputStream.getNextEntry();
-        final UUID jobId = UUID.randomUUID();
-        log.info("Unzipping Album, Job ID [{}]", jobId);
-        final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + jobId));
         while (nextEntry != null) {
             final File newFile = createNewFile(workingDirectoryPath.toFile(), nextEntry);
             if (nextEntry.isDirectory()) {
