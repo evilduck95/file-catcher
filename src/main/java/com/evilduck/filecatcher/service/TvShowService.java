@@ -16,7 +16,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +66,7 @@ public class TvShowService extends FileService {
     }
 
     @Override
-    public String saveOrAppend(InputStream inputStream, String fileName, String contentType) throws IOException {
+    public String saveOrAppend(InputStream inputStream, String fileName, int startByte, int totalFileBytes, String contentType) throws IOException {
         if (correctContentType(contentType)) {
             final File tempFolder = jobDirectoryManager.unzipAlbum(inputStream);
             final FileWriter metadataWriter = new FileWriter(getMetadataFileFor(tempFolder));
@@ -95,9 +94,8 @@ public class TvShowService extends FileService {
     }
 
     private void processTvShow(File tempFolder) {
-        final File metadata = getMetadataFileFor(tempFolder);
         try {
-            final TvShow tvShow = parseTvShow(tempFolder, getShowNameFromMetadata(metadata));
+            final TvShow tvShow = parseTvShow(tempFolder, tempFolder.getName());
             tvShowRepository.saveTvShow(tvShow);
             log.info("Saved TV Show [{}]", tvShow.name());
         } catch (IOException e) {
@@ -226,12 +224,6 @@ public class TvShowService extends FileService {
             }
         }
         return false;
-    }
-
-    private String getShowNameFromMetadata(final File metadata) throws IOException {
-        final List<String> lines = FileUtils.readLines(metadata, Charset.defaultCharset());
-        if (lines.isEmpty()) throw new IllegalStateException("TV Show saved without name in metadata");
-        else return lines.get(0);
     }
 
 }

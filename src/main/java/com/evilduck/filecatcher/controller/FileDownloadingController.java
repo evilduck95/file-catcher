@@ -6,8 +6,7 @@ import com.evilduck.filecatcher.service.FileService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
-import org.apache.commons.fileupload2.core.FileItemInput;
-import org.apache.commons.fileupload2.core.FileItemInputIterator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Slf4j
 public abstract class FileDownloadingController {
 
     private static final String NUM_OF_CHUNKS_PARAM = "numOfChunks";
@@ -30,28 +30,20 @@ public abstract class FileDownloadingController {
         final boolean isMultipartContent = JakartaServletFileUpload.isMultipartContent(request);
 
         if (isMultipartContent) {
-            final Part filePart = request.getPart("file");
+            final Part filePart = request.getPart("fileChunk");
+            final int totalFileBytes = Integer.parseInt(request.getParameter("totalFileBytes"));
+            final int chunkStartByte = Integer.parseInt(request.getParameter("chunkStartByte"));
             if (filePart == null) {
-                return ResponseEntity.ok(new FileUploadResponse("No File Attached", null));
+                return ResponseEntity.ok(new FileUploadResponse("No File Attached", null, 0));
             } else {
+                final String fileName = filePart.getSubmittedFileName();
+                log.info("Received bytes starting at {} of file {}", chunkStartByte, fileName);
                 final InputStream inputStream = filePart.getInputStream();
-                final String fileName = filePart.getName();
-                final String savedFileName = fileService.saveOrAppend(inputStream, fileName, filePart.getContentType());
-                return ResponseEntity.ok(new FileUploadResponse("File Saved Successfully", savedFileName));
+                final String savedFileName = fileService.saveOrAppend(inputStream, fileName, chunkStartByte, totalFileBytes, filePart.getContentType());
+                return ResponseEntity.ok(new FileUploadResponse("File Saved Successfully", savedFileName, filePart.getSize()));
             }
-//            final JakartaServletFileUpload upload = new JakartaServletFileUpload<>();
-//            final FileItemInputIterator iterator = upload.getItemIterator(request);
-//            while (iterator.hasNext()) {
-//                FileItemInput nextItem = iterator.next();
-//                if (!nextItem.isFormField()) {
-//                    final InputStream inputStream = nextItem.getInputStream();
-//                    final String fileName = nextItem.getName();
-//                    final String savedFileName = fileService.save(inputStream, fileName, nextItem.getContentType());
-//                    return ResponseEntity.ok(new FileUploadResponse("File Saved Successfully", savedFileName));
-//                }
-//            }
         } else {
-            return ResponseEntity.badRequest().body(new FileUploadResponse("Upload is not Multipart Content", null));
+            return ResponseEntity.badRequest().body(new FileUploadResponse("Upload is not Multipart Content", null, 0));
         }
     }
 

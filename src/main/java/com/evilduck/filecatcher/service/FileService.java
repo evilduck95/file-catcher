@@ -21,17 +21,14 @@ public abstract class FileService {
     }
 
     public abstract String save(InputStream inputStream, String fileName, String contentType) throws IOException;
-    public abstract String saveOrAppend(InputStream inputStream, String fileName, String contentType) throws IOException;
+
+    public abstract String saveOrAppend(InputStream inputStream, String fileName, int startByte, int totalFileBytes, String contentType) throws IOException;
 
 
     public abstract void process(List<String> jobIds);
 
     boolean correctContentType(final String contentType) {
-        if (contentType == null) return false;
-        for (String type : expectedContentTypes) {
-            if (contentType.contains(type)) return true;
-        }
-        return false;
+        return true;
     }
 
     protected String cleanseName(final String filename) {
