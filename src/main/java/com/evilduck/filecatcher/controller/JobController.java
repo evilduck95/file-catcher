@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/job")
-@CrossOrigin(origins = {"http://localhost:3000", "http://evilduck95.net"})
+@CrossOrigin(origins = {"http://localhost:3000", "https://evilduck95.net"})
 public class JobController {
 
     private final JobQueueService jobQueueService;

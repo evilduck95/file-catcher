@@ -51,7 +51,7 @@ public class FilmService extends FileService {
     }
 
     @Override
-    public String saveOrAppend(InputStream inputStream, String fileName, int startByte, int totalFileBytes, String contentType) throws IOException {
+    public String saveOrAppend(InputStream inputStream, String fileName, long startByte, long totalFileBytes, String contentType) throws IOException {
         if (correctContentType(contentType)) {
             return jobDirectoryManager.appendStreamToFile(fileName, startByte, totalFileBytes, inputStream);
         } else {

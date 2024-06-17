@@ -38,8 +38,8 @@ public class JobDirectoryManager {
     }
 
     public String appendStreamToFile(final String fileName,
-                                     final int startByte,
-                                     final int totalFileBytes,
+                                     final long startByte,
+                                     final long totalFileBytes,
                                      final InputStream inputStream) throws IOException {
         final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + fileName));
         final String outputFilePath = workingDirectoryPath.resolve(fileName).toString();

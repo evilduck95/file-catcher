@@ -31,8 +31,8 @@ public abstract class FileDownloadingController {
 
         if (isMultipartContent) {
             final Part filePart = request.getPart("fileChunk");
-            final int totalFileBytes = Integer.parseInt(request.getParameter("totalFileBytes"));
-            final int chunkStartByte = Integer.parseInt(request.getParameter("chunkStartByte"));
+            final long totalFileBytes = Long.parseLong(request.getParameter("totalFileBytes"));
+            final long chunkStartByte = Long.parseLong(request.getParameter("chunkStartByte"));
             if (filePart == null) {
                 return ResponseEntity.ok(new FileUploadResponse("No File Attached", null, 0));
             } else {
