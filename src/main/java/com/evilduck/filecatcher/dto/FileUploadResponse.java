@@ -1,5 +1,5 @@
 package com.evilduck.filecatcher.dto;
 
-public record FileUploadResponse(String message, String jobId) {
+public record FileUploadResponse(String message, String jobId, long bytesReceived) {
 
 }

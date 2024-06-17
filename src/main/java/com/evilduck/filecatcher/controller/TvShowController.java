@@ -3,6 +3,7 @@ package com.evilduck.filecatcher.controller;
 import com.evilduck.filecatcher.dto.FileUploadResponse;
 import com.evilduck.filecatcher.request.JobProcessingRequest;
 import com.evilduck.filecatcher.service.TvShowService;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class TvShowController extends FileDownloadingController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<FileUploadResponse> uploadTvShow(final HttpServletRequest request) throws IOException {
+    public ResponseEntity<FileUploadResponse> uploadTvShow(final HttpServletRequest request) throws IOException, ServletException {
         return handleUpload(request);
     }
 

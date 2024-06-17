@@ -51,6 +51,15 @@ public class FilmService extends FileService {
     }
 
     @Override
+    public String saveOrAppend(InputStream inputStream, String fileName, long startByte, long totalFileBytes, String contentType) throws IOException {
+        if (correctContentType(contentType)) {
+            return jobDirectoryManager.appendStreamToFile(fileName, startByte, totalFileBytes, inputStream);
+        } else {
+            throw new IncorrectFileFormatException(fileName, "File is not a ZIP Archive or Video");
+        }
+    }
+
+    @Override
     public void process(final List<String> jobIds) {
         for (final String id : jobIds) {
             final File filmsFolder = jobDirectoryManager.getJobDirectory(id);
