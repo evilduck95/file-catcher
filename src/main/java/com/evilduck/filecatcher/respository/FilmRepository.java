@@ -12,7 +12,6 @@ import java.nio.file.Files;
 @Slf4j
 public class FilmRepository extends FileRepository {
 
-
     public FilmRepository(final FileDefaults fileDefaults,
                           final String directory) {
         super(fileDefaults, directory);
@@ -28,7 +27,7 @@ public class FilmRepository extends FileRepository {
         }
         else{
             finalFileName = String.format("%s.%s",
-                    film.getName().endsWith(String.valueOf(fileDefaults.getDelimiter())) ? film.getName() : film.getName() + fileDefaults.getDelimiter(),
+                    film.getName().replaceAll(String.format("%s$", fileDefaults.getDelimiter()), ""),
                     film.getExtension());
         }
         final File outputFile = new File(directory + finalFileName);
@@ -37,4 +36,5 @@ public class FilmRepository extends FileRepository {
         Files.copy(film.getFile().toPath(), outputFile.toPath());
         log.info("Saved file at [{}]", outputFile.getPath());
     }
+
 }
