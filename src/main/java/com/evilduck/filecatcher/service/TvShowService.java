@@ -19,6 +19,7 @@ import java.net.URLConnection;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,12 +127,12 @@ public class TvShowService extends FileService {
                 final int currentSeasonNumber = parseSeasonNumberFromEpisode(episodeFile.getName())
                         .orElse(parseSeasonNumberFromFolder(seasonFolder.getName())
                                 .orElse(-1));
-                log.info("found season [{}] from episode name", currentSeasonNumber);
+                log.info("Found season [{}] from episode name", currentSeasonNumber);
                 final Season existingSeason = tvShow.getSeason(currentSeasonNumber);
                 final Season season = existingSeason == null ? new Season(currentSeasonNumber, episodeFiles.length) : existingSeason;
                 if (existingSeason == null) tvShow.addSeason(season, season.seasonNumber());
                 final Episode episode = parseEpisode(tvShow.name(), season, episodeFile);
-                log.info("Adding episode [{}] to season [{}]", episode, currentSeasonNumber);
+                log.info("Adding episode [{}] to season [{}]", episode.getEpisodeNumber(), currentSeasonNumber);
                 season.addEpisode(e, episode);
             }
         }
@@ -150,7 +151,7 @@ public class TvShowService extends FileService {
         episode.setFile(episodeFile);
         episode.setExtension(fileExtension);
         episode.setName(episodeName);
-        log.info("Parsed following information [{}]", episode);
+        log.info("Episode Parsed Season [{}], Episode [{}], Name [{}], Subtitles File [{}]", season.seasonNumber(), episode.getEpisodeNumber(), episode.getName(), Objects.nonNull(episode.getSubtitles()));
         return episode;
     }
 
