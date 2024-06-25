@@ -1,11 +1,13 @@
 package com.evilduck.filecatcher.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -27,16 +29,6 @@ public class JobDirectoryManager {
         return Path.of(tempDirectory, jobId).toFile();
     }
 
-    public String tempStoreStreamAsFile(final String fileName,
-                                        final InputStream inputStream) throws IOException {
-        final Path workingDirectoryPath = Files.createDirectories(Path.of(tempDirectory + fileName));
-        final String outputFilePath = workingDirectoryPath.resolve(fileName).toString();
-        try (final FileOutputStream outputStream = new FileOutputStream(outputFilePath)) {
-            IOUtils.copy(inputStream, outputStream);
-            return fileName;
-        }
-    }
-
     public String appendStreamToFile(final String fileName,
                                      final long startByte,
                                      final long totalFileBytes,
@@ -51,10 +43,6 @@ public class JobDirectoryManager {
             randomAccessFile.write(chunkBytes);
         }
         return fileName;
-//        try (final FileOutputStream outputStream = new FileOutputStream(outputFilePath, true)) {
-//            IOUtils.copy(inputStream, outputStream);
-//            return fileName;
-//        }
     }
 
     /**

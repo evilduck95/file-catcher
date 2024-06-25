@@ -15,23 +15,14 @@ public abstract class FileService {
     protected static final String MEDIA_NAME_METADATA_KEY = "name";
 
     protected FileDefaults fileDefaults;
-    private final String[] expectedContentTypes;
 
-    protected FileService(FileDefaults fileDefaults, String... expectedContentTypes) {
+    protected FileService(FileDefaults fileDefaults) {
         this.fileDefaults = fileDefaults;
-        this.expectedContentTypes = expectedContentTypes;
     }
-
-    public abstract String save(InputStream inputStream, String fileName, String contentType) throws IOException;
 
     public abstract String saveOrAppend(InputStream inputStream, String fileName, long startByte, long totalFileBytes, String contentType) throws IOException;
 
-
     public abstract void process(List<String> jobIds);
-
-    boolean correctContentType(final String contentType) {
-        return true;
-    }
 
     protected String cleanseName(final String filename) {
         return filename.replaceAll(fileDefaults.getCleanseRegex(), String.valueOf(fileDefaults.getDelimiter()));
@@ -66,9 +57,6 @@ public abstract class FileService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-    protected File getMetadataFileFor(File tempFolder) {
-        return tempFolder.toPath().resolve("metadata").toFile();
     }
 
 }

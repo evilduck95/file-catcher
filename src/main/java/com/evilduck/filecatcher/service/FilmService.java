@@ -2,7 +2,6 @@ package com.evilduck.filecatcher.service;
 
 import com.evilduck.filecatcher.configuration.FileDefaults;
 import com.evilduck.filecatcher.exception.FileProcessingException;
-import com.evilduck.filecatcher.exception.IncorrectFileFormatException;
 import com.evilduck.filecatcher.model.Film;
 import com.evilduck.filecatcher.model.Job;
 import com.evilduck.filecatcher.respository.FilmRepository;
@@ -33,30 +32,19 @@ public class FilmService extends FileService {
                        FileDefaults fileDefaults,
                        JobDirectoryManager jobDirectoryManager,
                        JobQueueService jobQueueService) {
-        super(fileDefaults, "video");
+        super(fileDefaults);
         this.filmRepository = filmRepository;
         this.jobDirectoryManager = jobDirectoryManager;
         this.jobQueueService = jobQueueService;
     }
 
     @Override
-    public String save(final InputStream inputStream,
-                       final String fileName,
-                       final String contentType) throws IOException {
-        if (correctContentType(contentType)) {
-            return jobDirectoryManager.tempStoreStreamAsFile(fileName, inputStream);
-        } else {
-            throw new IncorrectFileFormatException(fileName, "File is not a ZIP Archive or Video");
-        }
-    }
-
-    @Override
-    public String saveOrAppend(InputStream inputStream, String fileName, long startByte, long totalFileBytes, String contentType) throws IOException {
-        if (correctContentType(contentType)) {
-            return jobDirectoryManager.appendStreamToFile(fileName, startByte, totalFileBytes, inputStream);
-        } else {
-            throw new IncorrectFileFormatException(fileName, "File is not a ZIP Archive or Video");
-        }
+    public String saveOrAppend(final InputStream inputStream,
+                               final String fileName,
+                               final long startByte,
+                               final long totalFileBytes,
+                               final String contentType) throws IOException {
+        return jobDirectoryManager.appendStreamToFile(fileName, startByte, totalFileBytes, inputStream);
     }
 
     @Override
@@ -71,7 +59,7 @@ public class FilmService extends FileService {
     private void parseFilm(final File filmFolder) throws FileProcessingException {
         final File[] filmFiles = safeListDirectory(filmFolder);
         for (File film : filmFiles) {
-            if(film.isFile()){
+            if (film.isFile()) {
                 log.info("Got film, filename: [{}]", film.getName());
                 String filmFileNameCleansed = cleanseName(film.getName());
                 log.info("Filename cleansed, new filename: [{}]", filmFileNameCleansed);
@@ -112,16 +100,16 @@ public class FilmService extends FileService {
 
     private int parseResolution(final String filename) {
         Matcher resolutionMatch = RESOLUTION_PATTERN.matcher(filename);
-        if(resolutionMatch.find()) {
+        if (resolutionMatch.find()) {
             log.info("Found resolution [{}] for file.", resolutionMatch.group(1));
             return resolutionMatch.groupCount() == 1 ? Integer.parseInt(resolutionMatch.group(1)) : 0;
         }
         return 0;
     }
 
-    private Year parseYear(final String filename, int resolution){
+    private Year parseYear(final String filename, int resolution) {
         Matcher yearMatch = YEAR_PATTERN.matcher(filename);
-        if(yearMatch.find()) {
+        if (yearMatch.find()) {
             // Assume the first 4-digit number that is not the resolution would be the year of release
             for (int groupCounter = 0; groupCounter < yearMatch.groupCount(); groupCounter++) {
                 int testValue = Integer.parseInt(yearMatch.group(groupCounter + 1));
@@ -134,9 +122,9 @@ public class FilmService extends FileService {
         return null;
     }
 
-    private String parseFilmName(final String filename){
+    private String parseFilmName(final String filename) {
         Matcher filmNameMatch = FILM_NAME_PATTERN.matcher(filename);
-        if(filmNameMatch.find()){
+        if (filmNameMatch.find()) {
             log.info("Found name [{}] for file.", filmNameMatch.group(1));
             return filmNameMatch.group(1);
         }

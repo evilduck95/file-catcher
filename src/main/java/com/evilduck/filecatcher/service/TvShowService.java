@@ -39,39 +39,19 @@ public class TvShowService extends FileService {
                             final JobDirectoryManager jobDirectoryManager,
                             final TvShowRepository tvShowRepository,
                             JobQueueService jobQueueService) {
-        super(fileDefaults, "zip");
+        super(fileDefaults);
         this.jobDirectoryManager = jobDirectoryManager;
         this.tvShowRepository = tvShowRepository;
         this.jobQueueService = jobQueueService;
     }
 
     @Override
-    public String save(final InputStream inputStream,
-                       final String fileName,
-                       final String contentType) throws IOException {
-        if (correctContentType(contentType)) {
-            final File tempFolder = jobDirectoryManager.unzipAlbum(inputStream, fileName);
-            writeMetadataFor(tempFolder, fileName);
-            if (fileName == null) {
-                throw new IncorrectFileFormatException(null, "Error accessing Filename");
-            }
-            if (isValidTvShowFolder(tempFolder)) {
-                return tempFolder.getName();
-            } else {
-                throw new IncorrectFileFormatException(fileName, "Unable to find at least one video file in every season");
-            }
-        } else {
-            throw new IncorrectFileFormatException(fileName, "File is not a ZIP archive");
-        }
-    }
-
-    @Override
-    public String saveOrAppend(InputStream inputStream, String fileName, long startByte, long totalFileBytes, String contentType) throws IOException {
-        if (correctContentType(contentType)) {
-            return jobDirectoryManager.appendStreamToFile(fileName, startByte, totalFileBytes, inputStream);
-        } else {
-            throw new IncorrectFileFormatException(fileName, "File is not a ZIP archive");
-        }
+    public String saveOrAppend(final InputStream inputStream,
+                               final String fileName,
+                               final long startByte,
+                               final long totalFileBytes,
+                               final String contentType) throws IOException {
+        return jobDirectoryManager.appendStreamToFile(fileName, startByte, totalFileBytes, inputStream);
     }
 
 
@@ -85,7 +65,7 @@ public class TvShowService extends FileService {
                 final File tempFolder = jobDirectoryManager.unzipAlbum(tvShowZipStream, tvShowName);
                 writeMetadataFor(tempFolder, tvShowName);
                 if (tvShowName == null) {
-                    throw new IncorrectFileFormatException(null, "Error accessing Filename");
+                    throw new IncorrectFileFormatException("Error accessing Filename");
                 }
                 if (isValidTvShowFolder(tempFolder)) {
                     final Job job = new Job(tvShowName, () -> processTvShow(tempFolder));
@@ -96,7 +76,6 @@ public class TvShowService extends FileService {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
 
 
         }
@@ -110,13 +89,13 @@ public class TvShowService extends FileService {
             log.info("Saved TV Show [{}]", tvShow.name());
         } catch (IOException e) {
             log.error("There was a problem processing TV Show with Job ID [{}] {}", tempFolder.getName(), e.getMessage());
-            e.printStackTrace();
+            log.error("Exception", e);
         }
         try {
             cleanupTvShowFolder(tempFolder);
         } catch (IOException e) {
             log.error("There was a problem cleaning up TV Show with Job ID [{}] {}", tempFolder.getName(), e.getMessage());
-            e.printStackTrace();
+            log.error("Exception", e);
         }
     }
 

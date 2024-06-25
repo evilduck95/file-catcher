@@ -17,8 +17,9 @@ import java.io.InputStream;
 @Slf4j
 public abstract class FileDownloadingController {
 
-    private static final String NUM_OF_CHUNKS_PARAM = "numOfChunks";
-    private static final String CHUNK_NUMBER_PARAM = "chunkNumber";
+    private static final String FILE_CHUNK_PARAM = "fileChunk";
+    private static final String TOTAL_BYTES_PARAM = "totalFileBytes";
+    private static final String CHUNK_START_BYTE_PARAM = "chunkStartByte";
 
     private final FileService fileService;
 
@@ -27,12 +28,10 @@ public abstract class FileDownloadingController {
     }
 
     protected ResponseEntity<FileUploadResponse> handleUpload(final HttpServletRequest request) throws IOException, ServletException {
-        final boolean isMultipartContent = JakartaServletFileUpload.isMultipartContent(request);
-
-        if (isMultipartContent) {
-            final Part filePart = request.getPart("fileChunk");
-            final long totalFileBytes = Long.parseLong(request.getParameter("totalFileBytes"));
-            final long chunkStartByte = Long.parseLong(request.getParameter("chunkStartByte"));
+        if (JakartaServletFileUpload.isMultipartContent(request)) {
+            final Part filePart = request.getPart(FILE_CHUNK_PARAM);
+            final long totalFileBytes = Long.parseLong(request.getParameter(TOTAL_BYTES_PARAM));
+            final long chunkStartByte = Long.parseLong(request.getParameter(CHUNK_START_BYTE_PARAM));
             if (filePart == null) {
                 return ResponseEntity.ok(new FileUploadResponse("No File Attached", null, 0));
             } else {
