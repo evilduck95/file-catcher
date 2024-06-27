@@ -23,14 +23,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FilmRepositoryTest {
 
-    @Value("classpath:file-that-already-exists.ext")
+    @Value("classpath:directory-that-exists/file-that-already-exists.ext")
     private ClassPathResource fileThatAlreadyExists;
 
     private FilmRepository filmRepository;
 
     @BeforeEach
     void setUp() throws IOException {
-        fileThatAlreadyExists = new ClassPathResource("file-that-already-exists.ext");
+        fileThatAlreadyExists = new ClassPathResource("directory-that-exists/file-that-already-exists.ext");
         final FileDefaults fileDefaults = new FileDefaults();
         fileDefaults.setDelimiter('-');
         filmRepository = new FilmRepository(fileDefaults, fileThatAlreadyExists.getFile().getParent() + "\\");
